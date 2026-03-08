@@ -1,0 +1,74 @@
+{
+  "hero": {
+    "title": "Make Minecraft Great Again!",
+    "subtitle": "Join our new Minecraft 1.7.10 server!"
+  },
+  "problem": {
+    "heading": "What's wrong with modern Minecraft?",
+    "intro": "Modern servers are either donation machines or kindergarten simulators. Everything revolves around ranks, perks and paid shortcuts. Progress is sold. Power is packaged. Gameplay becomes a product instead of an adventure.",
+    "redHeading": [
+      "Claim plugins everywhere.",
+      "Admins policing the chat.",
+      "A thousand rules protecting everyone from everything."
+    ],
+    "outro": "No risk. No chaos. No stories. Just sanitized gameplay."
+  },
+  "solution": {
+    "heading": "We chose depth over safety.",
+
+    "intro": "Minecraft 1.7.10 was the era of real progression. Tech that could backfire. Magic that required learning. Systems that rewarded intelligence.",
+
+    "redHeading": [
+      "Industrial reactors.",
+      "Thaumcraft research.",
+      "Automation that actually meant something."
+    ],
+    "motto": ["Freedom is not chaos.", "Freedom is responsibility."],
+
+    "outro": "And that’s exactly what this server is built on."
+  },
+  "features": {
+    "main": {
+      "heading": "Three layers of chaos. One world.",
+      "body": "Magic, machinery and survival all collide in a world that actually fights back."
+    },
+    "slides": [
+      {
+        "title": "Magic that feels dangerous",
+        "paragraphs": [
+          "Thaumcraft 4 with addons, Botania and EvilCraft turn the world into something far stranger than vanilla ever was.",
+          "Research forbidden knowledge, build arcane systems, harness unstable power and push deeper into mechanics that reward curiosity instead of handholding.",
+          "This is not decorative fantasy. It is progression, experimentation and consequences."
+        ],
+        "scheme": 0
+      },
+      {
+        "title": "Technology with actual consequences",
+        "paragraphs": [
+          "Thermal Expansion, IndustrialCraft, NuclearCraft and ICBM give you machines that do more than just look impressive.",
+          "Build production lines, manage power, automate everything, experiment with reactors and weaponize the world if you are reckless enough to try."
+        ],
+        "scheme": 1
+      },
+      {
+        "title": "A world that pushes back",
+        "paragraphs": [
+          "With EnviroMine, realistic torches and Pam's HarvestCraft, survival is no longer background decoration.",
+          "Temperature matters. Food matters. Light matters. Preparation matters.",
+          "You are not just building in the world — you are dealing with it. And that makes every shelter, farm and expedition feel earned.",
+          "This is old-school modded tech — powerful, rewarding and absolutely capable of blowing up in your face."
+        ],
+        "scheme": 2
+      }
+    ]
+  },
+  "join": {
+    "heading": "Think you can survive here?",
+    "body": "We keep the whitelist small so the world doesn't turn into chaos. Drop your nickname and a few words about yourself.",
+    "serverIp": "play.oldschoolcraft.example:25565",
+    "nicknameLabel": "Nickname",
+    "aboutLabel": "About you",
+    "sendButtonLabel": "Send"
+  },
+  "footer": ""
+}

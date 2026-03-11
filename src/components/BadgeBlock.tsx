@@ -3,7 +3,7 @@ import type { TileOption } from "../util/bg-generator";
 import { TileBackground } from "../util/bg-generator";
 import { theme } from "../theme";
 
-export interface LayoutBlockProps extends Omit<BoxProps, "component"> {
+export interface BadgeBlockProps extends Omit<BoxProps, "component"> {
   component?: BoxProps["component"];
   /** If provided, renders a TileBackground instead of a solid bg color */
   tiles?: TileOption[];
@@ -14,7 +14,7 @@ export interface LayoutBlockProps extends Omit<BoxProps, "component"> {
   background?: string;
 }
 
-export function LayoutBlock({
+export function BadgeBlock({
   children,
   sx,
   component = "section",
@@ -23,7 +23,7 @@ export function LayoutBlock({
   tileDim = 0,
   tileSize = 32,
   ...rest
-}: LayoutBlockProps) {
+}: BadgeBlockProps) {
   return (
     <Box
       component={component}
@@ -35,8 +35,7 @@ export function LayoutBlock({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        py: "5rem",
-        px: "20px",
+        py: "20px",
         ...sx,
       }}
       {...rest}
@@ -52,7 +51,6 @@ export function LayoutBlock({
           flexDirection: "column",
           alignItems: "center",
           width: "100%",
-          maxWidth: "1024px",
         }}
       >
         {children}

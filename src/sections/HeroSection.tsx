@@ -1,8 +1,13 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Button, Typography } from "@mui/material";
 import content from "../content/text.json";
 import { palette as p } from "../theme";
+import parse from "html-react-parser";
 
-export function HeroSection() {
+type HeroSectionProps = {
+  onCTAClick: () => void;
+};
+
+export const HeroSection: React.FC<HeroSectionProps> = ({ onCTAClick }) => {
   const textColor = p.retro.main;
 
   return (
@@ -39,18 +44,37 @@ export function HeroSection() {
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          gap: 16,
           color: textColor,
         }}
       >
-        <Typography component="h1" variant="h1">
-          {content.hero.title}
-        </Typography>
-        {content.hero.subtitle ? (
-          <Typography component="h3" variant="h3">
-            {content.hero.subtitle}
+        <Box display="flex" flexDirection="column" alignItems="center">
+          <Typography component="h1" variant="h1">
+            {content.hero.title}
           </Typography>
-        ) : null}
+          {content.hero.subtitle ? (
+            <Typography component="h3" variant="h3">
+              {parse(content.hero.subtitle)}
+            </Typography>
+          ) : null}
+        </Box>
+        <Button
+          type="submit"
+          variant="contained"
+          sx={{
+            width: 300,
+            maxWidth: "100%",
+            backgroundColor: p.retro.main,
+            borderRadius: 0,
+            "&:hover": {
+              background: p.retro.light,
+            },
+          }}
+          onClick={onCTAClick}
+        >
+          Join Now
+        </Button>
       </Box>
     </Box>
   );
-}
+};

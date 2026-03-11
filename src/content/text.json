@@ -1,7 +1,7 @@
 {
   "hero": {
     "title": "Make Minecraft Great Again!",
-    "subtitle": "Join our new Minecraft 1.7.10 server!"
+    "subtitle": "Join <span style='color:#8b5cf6'>Oldschoolcraft</span>, our new Minecraft 1.7.10 server!"
   },
   "problem": {
     "heading": "What's wrong with modern Minecraft?",
@@ -40,7 +40,7 @@
           "Research forbidden knowledge, build arcane systems, harness unstable power and push deeper into mechanics that reward curiosity instead of handholding.",
           "This is not decorative fantasy. It is progression, experimentation and consequences."
         ],
-        "scheme": 0
+        "image": "/assets/carousel/slide-1.jpg"
       },
       {
         "title": "Technology with actual consequences",
@@ -48,7 +48,7 @@
           "Thermal Expansion, IndustrialCraft, NuclearCraft and ICBM give you machines that do more than just look impressive.",
           "Build production lines, manage power, automate everything, experiment with reactors and weaponize the world if you are reckless enough to try."
         ],
-        "scheme": 1
+        "image": "/assets/carousel/slide-2.png"
       },
       {
         "title": "A world that pushes back",
@@ -58,13 +58,13 @@
           "You are not just building in the world — you are dealing with it. And that makes every shelter, farm and expedition feel earned.",
           "This is old-school modded tech — powerful, rewarding and absolutely capable of blowing up in your face."
         ],
-        "scheme": 2
+        "image": "/assets/carousel/slide-3.png"
       }
     ]
   },
   "join": {
     "heading": "Think you can survive here?",
-    "body": "We keep the whitelist small so the world doesn't turn into chaos. Drop your nickname and a few words about yourself.",
+    "body": "We keep the whitelist small so the world doesn't turn into chaos. Drop your nickname and a few words about yourself. By the way, you <span style='color:#e0b84f; font-weight: bold;'>don't</span> need to join our Discord to play on the server.",
     "serverIp": "play.oldschoolcraft.example:25565",
     "nicknameLabel": "Nickname",
     "aboutLabel": "About you",

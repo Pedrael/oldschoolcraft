@@ -14,6 +14,14 @@ export type TileBackgroundProps = {
   style?: React.CSSProperties;
 };
 
+function isImage(str: string): boolean {
+  return str.startsWith("http") || str.startsWith("/");
+}
+
+function isColour(str: string): boolean {
+  return str.startsWith("#");
+}
+
 function pickWeightedTile(tiles: TileOption[]): TileOption {
   const totalWeight = tiles.reduce((sum, t) => sum + t.weight, 0);
   const random = Math.random() * totalWeight;
@@ -80,18 +88,29 @@ export function TileBackground({
           height: rows * tileSize,
         }}
       >
-        {generatedTiles.map((tile, i) => (
-          <div
-            key={i}
-            style={{
-              width: tileSize,
-              height: tileSize,
-              backgroundImage: `url(${tile.src})`,
-              backgroundSize: "cover",
-              imageRendering: "pixelated",
-            }}
-          />
-        ))}
+        {generatedTiles.map((tile, i) =>
+          isImage(tile.src) ? (
+            <div
+              key={i}
+              style={{
+                width: tileSize,
+                height: tileSize,
+                backgroundImage: `url(${tile.src})`,
+                backgroundSize: "cover",
+                imageRendering: "pixelated",
+              }}
+            />
+          ) : isColour(tile.src) ? (
+            <div
+              key={i}
+              style={{
+                width: tileSize,
+                height: tileSize,
+                backgroundColor: tile.src,
+              }}
+            />
+          ) : null,
+        )}
       </div>
       {dim > 0 && (
         <div

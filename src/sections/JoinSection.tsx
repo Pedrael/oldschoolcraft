@@ -1,11 +1,16 @@
-import { useState } from "react";
-import { Box, Snackbar, Typography } from "@mui/material";
+import { forwardRef, useState } from "react";
+import { Box, Link, Snackbar, Typography } from "@mui/material";
 import { LayoutBlock } from "../components/LayoutBlock";
 import { NicknameField } from "../components/join/NicknameField";
 import { AboutTextarea } from "../components/join/AboutTextarea";
 import { SendButton } from "../components/join/SendButton";
 import content from "../content/text.json";
+import parse from "html-react-parser";
 import { AddressButton } from "../components/join/AddressButton";
+
+type JoinSectionProps = {
+  ref: React.RefObject<HTMLDivElement | null>;
+};
 
 const STONEBRICK_TILES = [
   { src: "/assets/blocks/stonebrick.png", weight: 6 },
@@ -13,7 +18,7 @@ const STONEBRICK_TILES = [
   { src: "/assets/blocks/stonebrick_cracked.png", weight: 1 },
 ];
 
-export function JoinSection() {
+export const JoinSection: React.FC<JoinSectionProps> = forwardRef((_, ref) => {
   const join = content.join;
   const [nickname, setNickname] = useState("");
   const [about, setAbout] = useState("");
@@ -51,11 +56,20 @@ export function JoinSection() {
         component="h1"
         variant="h1"
         sx={{ mb: 2, textAlign: "center" }}
+        ref={ref}
       >
         {join.heading}
       </Typography>
       <Typography variant="body1" sx={{ textAlign: "center", mb: 2 }}>
-        {join.body}
+        {parse(join.body)}{" "}
+        <Link
+          href="https://discord.gg/oldschoolcraft"
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ color: (theme) => theme.palette.primary.light }}
+        >
+          But if you want...
+        </Link>
       </Typography>
       <AddressButton onClick={handleCopyIp} label={join.serverIp} />
       <Box
@@ -96,4 +110,4 @@ export function JoinSection() {
       />
     </LayoutBlock>
   );
-}
+});

@@ -1,10 +1,15 @@
-import { createTheme, type ThemeOptions } from "@mui/material/styles";
+import {
+  createTheme,
+  responsiveFontSizes,
+  type ThemeOptions,
+} from "@mui/material/styles";
 
 const paletteWithCustom = {
   mode: "dark" as const,
   background: {
     default: "#121214",
     paper: "#1b1b20",
+    contrast: "#000000",
   },
   primary: {
     main: "#00AA00",
@@ -50,34 +55,45 @@ const paletteWithCustom = {
     dark: "#5c2a8a",
     light: "#b388ff",
   },
+  green: {
+    1: "#1e401e",
+    2: "#2f5f2f",
+    3: "#3e883e",
+    4: "#4faa4f",
+    5: "#55ff55",
+    6: "#72ff72",
+    7: "#88ff88",
+    8: "#a0ffa0",
+    9: "#c8ffc8",
+  },
 };
 
 export const palette = paletteWithCustom;
 
-export const theme = createTheme({
+const baseTheme = createTheme({
   palette: paletteWithCustom as ThemeOptions["palette"],
   typography: {
     fontFamily: '"PixelOperator", system-ui, sans-serif',
-    body1: { fontSize: 24, textIndent: "1.5rem" },
-    body2: { fontSize: 16, textIndent: "1.5rem" },
+    body1: { fontSize: "1.5rem", textIndent: "1.5rem" },
+    body2: { fontSize: "1rem", textIndent: "1.5rem" },
     h1: {
       fontFamily: '"Minecraft", sans-serif',
-      fontSize: 64,
+      fontSize: "4rem",
       textAlign: "center",
     },
     h2: {
       fontFamily: '"Minecraft", sans-serif',
-      fontSize: 48,
+      fontSize: "3rem",
       textAlign: "center",
     },
     h3: {
       fontFamily: '"Minecraft", sans-serif',
-      fontSize: 36,
+      fontSize: "2.5rem",
       textAlign: "center",
     },
     h4: {
       fontFamily: '"Minecraft", sans-serif',
-      fontSize: 24,
+      fontSize: "2rem",
       textAlign: "center",
     },
     h5: { fontFamily: '"Minecraft", sans-serif' },
@@ -94,3 +110,5 @@ export const theme = createTheme({
     },
   },
 });
+
+export const theme = responsiveFontSizes(baseTheme);

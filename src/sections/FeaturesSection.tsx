@@ -4,6 +4,7 @@ import { Carousel } from "../components/Carousel";
 import content from "../content/text.json";
 import { palette as p } from "../theme";
 import { useState } from "react";
+import CarouselSlide from "../components/CarouselSlide";
 
 export function FeaturesSection() {
   const { main, slides } = content.features;
@@ -12,37 +13,34 @@ export function FeaturesSection() {
   const colorSchemeHash = [
     {
       bg: p.magic.dark,
-      h: p.magic.light,
-      p: p.magic.main,
-    },
-    {
-      bg: p.techno.dark,
-      h: p.techno.light,
-      p: p.techno.main,
     },
     {
       bg: p.retro.dark,
-      h: p.retro.light,
-      p: p.retro.main,
+    },
+    {
+      bg: p.background.default,
     },
   ];
 
   const slidesElements = [
-    <Box key="1">
-      <Typography component="h2" variant="h2">
-        {slides[0].title}
-      </Typography>
-    </Box>,
-    <Box key="2">
-      <Typography component="h2" variant="h2">
-        {slides[1].title}
-      </Typography>
-    </Box>,
-    <Box key="3">
-      <Typography component="h2" variant="h2">
-        {slides[2].title}
-      </Typography>
-    </Box>,
+    <CarouselSlide
+      key={1}
+      title={slides[0].title}
+      paragraphs={slides[0].paragraphs}
+      image={slides[0].image}
+    />,
+    <CarouselSlide
+      key={2}
+      title={slides[1].title}
+      paragraphs={slides[1].paragraphs}
+      image={slides[1].image}
+    />,
+    <CarouselSlide
+      key={3}
+      title={slides[2].title}
+      paragraphs={slides[2].paragraphs}
+      image={slides[2].image}
+    />,
   ];
 
   const handleSlideChange = (index: number) => {

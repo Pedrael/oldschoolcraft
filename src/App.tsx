@@ -4,8 +4,17 @@ import { ProblemSection } from "./sections/ProblemSection";
 import { SolutionSection } from "./sections/SolutionSection";
 import { FeaturesSection } from "./sections/FeaturesSection";
 import { JoinSection } from "./sections/JoinSection";
+import { useRef } from "react";
 
 function App() {
+  const joinRef = useRef<HTMLDivElement>(null);
+
+  const handleScrollToJoin = () => {
+    joinRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
   return (
     <Box
       sx={{
@@ -15,11 +24,11 @@ function App() {
         flexDirection: "column",
       }}
     >
-      <HeroSection />
+      <HeroSection onCTAClick={handleScrollToJoin} />
       <ProblemSection />
       <SolutionSection />
       <FeaturesSection />
-      <JoinSection />
+      <JoinSection ref={joinRef} />
     </Box>
   );
 }

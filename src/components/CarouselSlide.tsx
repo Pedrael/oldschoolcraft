@@ -22,7 +22,13 @@ const CarouselSlide: React.FC<CarouselSlideProps> = ({
         mt={4}
         minHeight={"100vh"}
       >
-        <Box display="flex" flexDirection="column" alignItems="start" gap={2}>
+        <Box
+          display="flex"
+          flexDirection="column"
+          alignItems="start"
+          gap={2}
+          minHeight={"360px"}
+        >
           {paragraphs.map((paragraph, i) => (
             <Typography key={i} variant="body1">
               {paragraph}

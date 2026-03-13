@@ -55,7 +55,11 @@ const InfoRow: React.FC<InfoRowProps> = ({ label, value, children }) => {
         borderBottom: (theme) => `1px solid ${theme.palette.divider}`,
       }}
     >
-      <Typography variant="body2" color="text.secondary">
+      <Typography
+        variant="body2"
+        color="text.secondary"
+        sx={{ textIndent: "0" }}
+      >
         {label}
       </Typography>
       <Typography
@@ -63,6 +67,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ label, value, children }) => {
         sx={{
           textAlign: "right",
           wordBreak: "break-word",
+          textIndent: "0",
         }}
       >
         {value}

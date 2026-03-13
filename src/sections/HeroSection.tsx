@@ -2,6 +2,7 @@ import { Box, Button, Typography } from "@mui/material";
 import content from "../content/text.json";
 import { palette as p } from "../theme";
 import parse from "html-react-parser";
+import { ServerMonitor } from "../components/ServerMonitor";
 
 type HeroSectionProps = {
   onCTAClick: () => void;
@@ -58,6 +59,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onCTAClick }) => {
             </Typography>
           ) : null}
         </Box>
+        <ServerMonitor />
         <Button
           type="submit"
           variant="contained"

@@ -22,3 +22,25 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# --- Minecraft pack (game/) ---
+# Never commit mod jars (most 1.7.10 mods forbid redistribution) — track modlist.txt instead
+game/**/*.jar
+game/**/mods/
+game/**/coremods/
+# Runtime / generated server + world data
+game/server/world/
+game/server/world_*/
+game/**/saves/
+game/**/backups/
+game/**/logs/
+game/**/crash-reports/
+game/server/eula.txt
+game/server/ops.json
+game/server/whitelist.json
+game/server/banned-*.json
+game/server/usercache.json
+game/server/forge-*.jar
+game/server/minecraft_server*.jar
+game/server/libraries/
+game/server/versions/

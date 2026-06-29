@@ -1,0 +1,37 @@
+BetterAchievements-1.7.10-0.1.0.jar
+BetterFoliage-MC1.7.10-2.0.17.jar
+BetterSprinting-1.7.10-v2.3.0.jar
+Controlling-1.7.10-1.0.0.8.jar
+Ding-MC1.7.10v2.jar
+DynamicSurroundings-1.7.10-1.0.6.4.jar
+FullscreenWindowed-1.7.10-1.3.0b.jar
+HardcoreDarkness-MC1.7.10-1.7.jar
+Hide Names-1.7.10-1.1.8.jar
+InventoryTweaks-1.59-unofficial-asie-1.jar
+ItemPhysic Lite 1.1.5 mc1.7.10.jar
+MouseTweaks-2.4.4-mc1.7.10.jar
+NEIIntegration-MC1.7.10-1.1.2.jar
+Neat 1.7-27.jar
+NotEnoughEnergistics-1.7.10-1.4.2.jar
+NotEnoughItems-2.7.40-GTNH.jar
+NotEnoughResources-1.7.10-0.1.0-128.jar
+SoundFilters-0.8_for_1.7.X.jar
+TiCTooltips-mc1.7.10-1.2.5.jar
+TipTheScales-1.7.10-3.0.0.2.jar
+WAILA-features-1.7.10-0.1.0.jar
+WAILAPlugins-MC1.7.10-0.2.0-25.jar
+Waila-1.5.10_1.7.10.jar
+WailaHarvestability-mc1.7.10-1.1.6.jar
+Wawla-1.0.5.120.jar
+angelica-1.0.0-beta40.jar
+defaultkeys-mc1.7.10-1.0.28.jar
+flickerfix-1.7.10-v5.0.0.jar
+fognerf-1.7.10-0.4.jar
+itlt-1.7.x-1.0.3.jar
+journeymap-1.7.10-5.2.8-unlimited.jar
+legiblenei_1.7.10-1.6.7.6.jar
+neiaddons-1.12.14.40-mc1.7.10.jar
+ssmlegacy-mc1.7.10-1.2.3.jar
+tcinventoryscan-mc1.7.10-1.0.11.jar
+tcneiadditions-1.4.8.jar
+thaumcraftneiplugin-1.7.10-1.7a.jar

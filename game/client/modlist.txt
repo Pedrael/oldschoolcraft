@@ -38,7 +38,6 @@ EnderIO-1.7.10-2.3.0.430_beta.jar
 EnderStorage-1.7.10-1.4.7.37-universal.jar
 EnderTech-1.7.10-0.3.2.405.jar
 EnviroMine-1.3.124.jar
-EvilCraft-1.7.10-0.9.13.jar
 ExtraCells-1.7.10-2.3.14b200.jar
 ExtraTiC-1.7.10-1.4.6.jar
 FTBLib-1.7.10-1.0.18.3.jar
@@ -62,7 +61,6 @@ IvToolkit-1.2.1.jar
 Jabba-1.2.2_1.7.10.jar
 Locks-1.0.0.jar
 Mantle-1.7.10-0.3.2b.jar
-MatterOverdrive-1.7.10-0.4.2.jar
 Mffs-1.7.10-4.0.0b151.jar
 ModTweaker2-0.9.6.jar
 Morpheus-1.7.10-1.6.21.jar

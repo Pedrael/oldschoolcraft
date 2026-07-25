@@ -62,6 +62,7 @@ Jabba-1.2.2_1.7.10.jar
 Locks-1.0.0.jar
 Mantle-1.7.10-0.3.2b.jar
 Mffs-1.7.10-4.0.0b151.jar
+MoCreatures-Legacy-Final-1.2.jar
 ModTweaker2-0.9.6.jar
 Morpheus-1.7.10-1.6.21.jar
 MouseTweaks-2.4.4-mc1.7.10.jar

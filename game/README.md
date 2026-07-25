@@ -16,6 +16,7 @@ are the source of truth — download each listed jar into the matching `mods/` f
 
 ```
 game/
+  VERSION             # modpack version
   client/
     modlist.txt        # 167 mods — full client set
     config/            # client configs

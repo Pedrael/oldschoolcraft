@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Updates oldschoolcraft.duckdns.org to this host's current public IP.
+# An empty ip= makes DuckDNS use the request's source address — correct behind NAT.
+set -euo pipefail
+TOKEN=$(< /etc/duckdns/token)
+RESP=$(curl -sS --max-time 20 \
+  "https://www.duckdns.org/update?domains=oldschoolcraft&token=${TOKEN}&ip=")
+if [[ "$RESP" == "OK" ]]; then
+  echo "duckdns: OK"
+else
+  echo "duckdns: FAILED ($RESP)" >&2
+  exit 1
+fi

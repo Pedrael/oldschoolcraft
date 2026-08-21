@@ -1,0 +1,52 @@
+[Unit]
+Description=OldSchoolCraft — Minecraft 1.7.10 Forge server
+Documentation=file:/home/duduserver/minecraft/1.7.10/CLAUDE.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# Type=simple: the JVM is systemd's direct child, so crashes are seen and
+# `stop` is waited on. (An earlier tmux-based Type=forking unit was neither.)
+Type=simple
+User=duduserver
+Group=duduserver
+WorkingDirectory=/home/duduserver/minecraft/1.7.10
+
+# Holds the console FIFO. Removed automatically when the unit stops.
+RuntimeDirectory=minecraft
+RuntimeDirectoryMode=0755
+
+ExecStart=/usr/local/bin/mc-run
+
+# mc-stop types "stop" and blocks until the JVM exits, so systemd never
+# signals a server that is still flushing 13 dimensions to disk.
+ExecStop=/usr/local/bin/mc-stop $MAINPID
+TimeoutStopSec=300
+
+# A clean "stop" exits 0, so this only fires on an actual crash.
+Restart=on-failure
+RestartSec=15s
+
+# --- Resource control: crypto wins contention -------------------------------
+# CPUWeight is RELATIVE and only bites when cores are genuinely contended, so
+# Minecraft still uses the whole box while crypto idles (load is ~0.08 today).
+# Deliberately NOT using AllowedCPUs: hard-pinning would cap TPS even on an
+# idle machine, and 1.7.10's tick loop is single-threaded and latency-sensitive.
+CPUWeight=20
+IOWeight=20
+# AlwaysPreTouch commits the full 8G heap at boot (RSS ~8.8G), so these must
+# leave real headroom for page cache or the cgroup sits in permanent reclaim.
+MemoryHigh=12G
+MemoryMax=14G
+
+# --- Hardening --------------------------------------------------------------
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=false
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+
+[Install]
+WantedBy=multi-user.target

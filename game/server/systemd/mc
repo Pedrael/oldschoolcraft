@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+# mc — OldSchoolCraft admin CLI, same shape as the crypto CLI.
+# On the server: mc <cmd>.  From the laptop: ssh duduserver@duduserver mc <cmd>
+set -uo pipefail
+
+ROOT=/home/duduserver/minecraft/1.7.10
+FIFO=/run/minecraft/console.in
+LOG="$ROOT/logs/latest.log"
+BACKUP_DIR="$ROOT/backups"
+
+# Ask systemd for the JVM's pid. Never `pgrep -f forge-...jar`: -f matches full
+# command lines, so it also matches any shell whose args contain that string --
+# including an ssh session running this very check.
+mainpid() { systemctl show minecraft -p MainPID --value 2>/dev/null; }
+running() { local p; p=$(mainpid); [[ -p "$FIFO" && -n "$p" && "$p" != 0 ]]; }
+
+# Send a console command, print whatever the log emits in response.
+send() {
+  running || { echo "server is not running" >&2; return 1; }
+  local before=0
+  [[ -f "$LOG" ]] && before=$(wc -l < "$LOG")
+  echo "$*" > "$FIFO"
+  sleep 2
+  [[ -f "$LOG" ]] && tail -n +"$((before + 1))" "$LOG"
+}
+
+case "${1:-help}" in
+  start)   sudo systemctl start minecraft && echo "starting — 'mc logs' to watch mod init (~1 min)" ;;
+  stop)    echo "stopping; waiting for all 13 dimensions to flush..."
+           sudo systemctl stop minecraft && echo "stopped cleanly" ;;
+  restart) echo "restarting; the stop is waited on, so no overlap..."
+           sudo systemctl restart minecraft && echo "back up" ;;
+
+  status)
+    systemctl is-active --quiet minecraft && echo "systemd : active" || echo "systemd : INACTIVE"
+    running && echo "console : FIFO ready" || echo "console : unavailable"
+    pid=$(mainpid)
+    [[ -n "$pid" && "$pid" != 0 ]] && ps -o pid,etime,%cpu,rss -p "$pid" --no-headers |
+      awk '{printf "jvm     : pid %s  up %s  cpu %s%%  rss %.1f GB\n",$1,$2,$3,$4/1048576}'
+    echo "address : oldschoolcraft.duckdns.org:25565 -> $(getent hosts oldschoolcraft.duckdns.org | awk '{print $1}')"
+    ;;
+
+  # Not a real tty attach: type commands, see the log. Ctrl-c leaves the
+  # server running (unlike the old tmux console, where Ctrl-c killed it).
+  console)
+    running || { echo "not running" >&2; exit 1; }
+    echo "--- commands go to the server; Ctrl-c leaves (server keeps running) ---"
+    tail -n 30 -f "$LOG" &
+    tpid=$!
+    trap 'kill $tpid 2>/dev/null' EXIT INT TERM
+    while IFS= read -r line; do
+      [[ -z "$line" ]] && continue
+      echo "$line" > "$FIFO"
+    done
+    ;;
+
+  logs)   tail -f -n "${2:-100}" "$LOG" ;;
+  errors) grep -nE '\[(ERROR|WARN|FATAL)\]' "$LOG" | tail -n "${2:-50}" ;;
+
+  cmd)     shift; send "$@" ;;
+  players) send list ;;
+  save)    send save-all ;;
+
+  # CLAUDE.md: minetweaker.log must have zero ERROR after any script change
+  mt)
+    send "mt reload"
+    echo "--- minetweaker.log ---"
+    echo "ERROR lines: $(grep -c ERROR "$ROOT/minetweaker.log" 2>/dev/null || echo 0)"
+    grep ERROR "$ROOT/minetweaker.log" 2>/dev/null | tail -20
+    ;;
+
+  # Safe backup: pause chunk writes so region/ is never captured mid-write
+  backup)
+    mkdir -p "$BACKUP_DIR"
+    stamp=$(date +%Y%m%d-%H%M%S)
+    if running; then send save-all >/dev/null; send save-off >/dev/null; sleep 3; fi
+    tar -C "$ROOT" -czf "$BACKUP_DIR/world-$stamp.tar.gz" world
+    rc=$?
+    running && send save-on >/dev/null
+    [[ $rc -eq 0 ]] && echo "wrote $BACKUP_DIR/world-$stamp.tar.gz ($(du -h "$BACKUP_DIR/world-$stamp.tar.gz" | cut -f1))"
+    find "$BACKUP_DIR" -name 'world-*.tar.gz' -mtime +14 -delete
+    ;;
+
+  *) cat <<'EOF'
+mc — OldSchoolCraft admin
+
+  mc start | stop | restart    systemd; stop waits for a full world flush
+  mc status                    systemd + console + jvm cpu/rss + address
+  mc console                   type commands, watch the log
+                               Ctrl-c leaves; the server keeps running
+  mc logs [n]                  tail -f latest.log
+  mc errors [n]                ERROR/WARN/FATAL from latest.log
+  mc cmd "<command>"           any console command, prints the response
+  mc players                   who is online
+  mc mt                        /mt reload + minetweaker.log error count
+  mc save                      save-all
+  mc backup                    save-off, tar world/, save-on, prune >14d
+
+Rule zero (CLAUDE.md): stop the server before editing any config —
+mods rewrite their own .cfg at runtime and will silently revert you.
+EOF
+    ;;
+esac

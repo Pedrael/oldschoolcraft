@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# ExecStop: ask the server to stop, then BLOCK until the JVM is actually gone.
+#
+# The blocking is the point. systemd signals whatever survives once ExecStop
+# returns, so returning early means SIGTERM to a JVM mid-write — and
+# `systemctl restart` would boot a second JVM onto a world the first still holds.
+#
+# systemd passes the real MainPID as $1. Do NOT go back to
+# `pgrep -f forge-1.7.10.*universal.jar`: -f matches full command lines, so it
+# also matches any shell whose arguments merely CONTAIN that string — including
+# the ssh session running the check. That false positive burned the full 290s
+# timeout on every stop while the server had already exited seconds earlier.
+set -uo pipefail
+
+MAINPID="${1:-0}"
+FIFO=/run/minecraft/console.in
+
+[[ -p "$FIFO" ]] && echo stop > "$FIFO"
+[[ "$MAINPID" -gt 0 ]] 2>/dev/null || exit 0
+
+# 290s < TimeoutStopSec=300, so we always return before systemd loses patience.
+for _ in $(seq 1 290); do
+  kill -0 "$MAINPID" 2>/dev/null || exit 0
+  sleep 1
+done
+
+echo "mc-stop: pid $MAINPID alive after 290s — systemd will now SIGTERM it" >&2
+exit 0

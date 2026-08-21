@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Runs the Forge server in the FOREGROUND so systemd is the real parent and can
+# see crashes (Restart=on-failure) and wait for a clean stop.
+#
+# Console input arrives through a FIFO instead of a tmux session. tmux was the
+# obvious choice and it was wrong: tmux daemonises, so systemd logged
+# "Supervising process N which is not our child" and never noticed the JVM at
+# all — crash restarts were dead and `systemctl stop` returned while the world
+# was still saving.
+set -euo pipefail
+cd /home/duduserver/minecraft/1.7.10
+
+FIFO=/run/minecraft/console.in
+rm -f "$FIFO"
+mkfifo -m 660 "$FIFO"
+
+# Open the FIFO read-write and keep that descriptor for the life of the process.
+# Without a permanent writer the JVM reads EOF on stdin the moment the last
+# `echo > console.in` finishes, and Forge treats EOF as "stop".
+exec 3<>"$FIFO"
+exec ./start.sh <&3

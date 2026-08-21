@@ -44,3 +44,16 @@ game/server/forge-*.jar
 game/server/minecraft_server*.jar
 game/server/libraries/
 game/server/versions/
+
+# Bundled Java runtime (98 MB) — install Java 8 from the OS instead
+game/server/jre8/
+# World archives and ad-hoc snapshots
+game/server/world-*.zip
+game/**/*.bak
+game/**/*.bak-*
+game/**/*.before-splice-*
+# Runtime scratch
+game/server/local/
+game/server/autostart.stamp
+game/server/usernamecache.json
+game/server/TimeUsage.txt

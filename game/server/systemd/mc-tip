@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# mc-tip — say one thing into chat that the server has never told anyone.
+#
+# Every doc in docs/ ends up complaining about the same problem: the content
+# exists and nobody knows. There is no scheduler mod, so this is the host being
+# the scheduler.
+#
+# Three guards, because a tip in an empty room is just log spam:
+#   * server up
+#   * at least one player online
+#   * inside the hours people actually play
+#
+# 18:00-03:00 is the real play window and 22:00-01:00 is 69% of all deaths --
+# measured from the grave snapshots, not guessed. Tips fire 19:00-01:00 so they
+# land while people are on and stop before the tail of the night.
+set -uo pipefail
+
+FIFO=/run/minecraft/console.in
+STATE=/home/duduserver/mctools/tip-state
+TIPS=/home/duduserver/mctools/tips.txt
+DRY=${DRY:-0}
+
+# --- guards ----------------------------------------------------------------
+h=$((10#$(date +%H)))
+if (( h < 19 && h > 1 )); then
+  [[ $DRY == 1 ]] && echo "outside 19:00-01:00 window (hour $h)"; exit 0
+fi
+[[ -p "$FIFO" ]] || { [[ $DRY == 1 ]] && echo "server not running"; exit 0; }
+pid=$(systemctl show minecraft -p MainPID --value 2>/dev/null)
+[[ -n "$pid" && "$pid" != 0 ]] || exit 0
+
+# "Players currently online: [ 0 ]" -- skip when nobody is listening
+before=$(wc -l < /home/duduserver/minecraft/1.7.10/logs/latest.log)
+echo "list" > "$FIFO"; sleep 2
+count=$(tail -n +"$((before+1))" /home/duduserver/minecraft/1.7.10/logs/latest.log |
+        grep -oE "Players currently online: \[ *[0-9]+" | grep -oE "[0-9]+$" | tail -1)
+if [[ -z "${count:-}" || "$count" -eq 0 ]]; then
+  [[ $DRY == 1 ]] && echo "nobody online — staying quiet"; exit 0
+fi
+
+# --- pick one nobody has seen this cycle -----------------------------------
+total=$(grep -c . "$TIPS")
+touch "$STATE"
+used=$(grep -c . "$STATE" || true)
+(( used >= total )) && : > "$STATE"          # cycle exhausted, start again
+
+n=0
+while :; do
+  n=$(( (RANDOM % total) + 1 ))
+  grep -qx "$n" "$STATE" || break
+done
+echo "$n" >> "$STATE"
+tip=$(sed -n "${n}p" "$TIPS")
+
+if [[ $DRY == 1 ]]; then
+  echo "[$count online] would say tip $n/$total:"
+  echo "  $tip"
+  exit 0
+fi
+echo "say $tip" > "$FIFO"

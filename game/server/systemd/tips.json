@@ -1,0 +1,414 @@
+[
+{
+"cat": "tip",
+"text": "The Escritoire is a memory game that permanently multiplies a bee mutation's odds by 1.5. It is the least-used block in the pack."
+},
+{
+"cat": "tip",
+"text": "Open the quest book and find the party tab. Party members share progress, so four people in one party fill a bar four times faster."
+},
+{
+"cat": "tip",
+"text": "Waystones: you must physically visit one before you can travel to it. One waystone gives you an empty menu. Two is the minimum."
+},
+{
+"cat": "tip",
+"text": "Trophies drop on Looting, not on patience. Looting III is about 1 in 80. No Looting at all is 1 in 2000."
+},
+{
+"cat": "tip",
+"text": "Wild beehives are two and a half times more common than they used to be. Break one with a Scoop and you have a princess."
+},
+{
+"cat": "tip",
+"text": "The Wyvern Lair is an entire dimension behind a portal staff. Nobody has ever set foot in it."
+},
+{
+"cat": "tip",
+"text": "A princess has an 8% chance to drop twice. Two breeding lines beats one by more than double, because you can cross them."
+},
+{
+"cat": "tip",
+"text": "Put four crops around a cross-crop. AgriCraft will show you a result faster than any other breeding system here."
+},
+{
+"cat": "tip",
+"text": "Thaumic Horizons will clone anything alive that isn't a player. Warded Syringe, Curative Vat, four Victus. Nobody has tried it."
+},
+{
+"cat": "tip",
+"text": "Loot bags contain loot bags. That is deliberate."
+},
+{
+"cat": "tip",
+"text": "Odd Jobs bounties reset every hour. Twenty minutes is a perfectly good reason to log in."
+},
+{
+"cat": "tip",
+"text": "Silver gear comes out of the crafting grid already enchanted, at no extra cost. Smite III and Bane of Arthropods III."
+},
+{
+"cat": "tip",
+"text": "Infernal mobs are the best source of gear on this server. The more words in the name, the better the payout."
+},
+{
+"cat": "tip",
+"text": "There is a quest line in your book that looks empty. It fills in behind you, already completed, after you have done the thing."
+},
+{
+"cat": "tip",
+"text": "Butterflies and bees pollinate leaves. Keep an apiary in a forest and your trees roll mutation dice while you are mining."
+},
+{
+"cat": "tip",
+"text": "Nature's Compass tells you which direction a biome is, and how far. It is sitting in the Discovery quest line."
+},
+{
+"cat": "tip",
+"text": "The Great Work is server-wide. One person finishing a stage completes it for everyone, including whoever is asleep."
+},
+{
+"cat": "tip",
+"text": "Nether fortress chests were rebuilt from scratch. They are worth crossing the lava for now."
+},
+{
+"cat": "tip",
+"text": "Use a Grafter on any leaf block that looks off-colour. That is a new species of tree."
+},
+{
+"cat": "tip",
+"text": "You cannot craft a spawn egg for a creature you have never killed. The recipe asks for what it drops."
+},
+{
+"cat": "tip",
+"text": "A lead helmet is a respirator. Wear one deep underground and foul air stops eating you."
+},
+{
+"cat": "tip",
+"text": "The Twilight Forest is two blocks of water, flowers round the edge, and a diamond thrown in. Not placed. Thrown."
+},
+{
+"cat": "tip",
+"text": "The Uncrafting Table takes crafted things apart into their ingredients, and it works on items from every mod here. Not just Twilight Forest."
+},
+{
+"cat": "tip",
+"text": "Right-click any stairs or slab to sit down. That is the whole mod and it is oddly pleasant."
+},
+{
+"cat": "tip",
+"text": "Every chestplate in the game carries a camel pack now. If your water never seemed to work, that was a bug, and it is fixed."
+},
+{
+"cat": "tip",
+"text": "Hover any piece of armour. It now tells you whether it keeps you warm, cooks you in the sun, or filters foul air."
+},
+{
+"cat": "tip",
+"text": "Chilli warms you. Ice cream cools you. Soup and coffee take the edge off a cold night. Food is a tool now."
+},
+{
+"cat": "tip",
+"text": "Juice and smoothies hydrate as well as cool. Ninety-five of them, and every one restores water."
+},
+{
+"cat": "tip",
+"text": "The Pulverizer turns one ore into two dust. It pays for itself within an hour and it is the first machine anyone should build."
+},
+{
+"cat": "tip",
+"text": "A Tinkers tool gains XP as you use it and levels up. A tool you have carried for a week is genuinely better than a fresh one."
+},
+{
+"cat": "tip",
+"text": "Put a Ball of Moss on your mining tool and you will effectively never repair it again."
+},
+{
+"cat": "tip",
+"text": "Frost scorpion armour is one of the warmest sets in the game here. So is arctic fur from the Twilight Forest glaciers."
+},
+{
+"cat": "tip",
+"text": "The IC2 hazmat suit is now a real respirator, and the best air protection in the pack. It was protecting against nothing at all."
+},
+{
+"cat": "tip",
+"text": "Magical Chalk turns up in ordinary dungeon chests now. That is your way into the Runic Dungeons."
+},
+{
+"cat": "tip",
+"text": "Resource crops exist. There are plants on this server that grow iron, gold and diamond."
+},
+{
+"cat": "tip",
+"text": "Meef Stroganoff is one of the best foods in the pack, and it warms you. The Minoshroom has it."
+},
+{
+"cat": "hint",
+"text": "A bounty's timer starts when you CLAIM the reward, not when you finish it. An unclaimed bounty is not refilling."
+},
+{
+"cat": "hint",
+"text": "Every module on a power suit starts with its sliders at ZERO. Green means enabled, not configured."
+},
+{
+"cat": "hint",
+"text": "A jetpack with Thrust at zero produces no lift at all. Open the Tinker Table and turn the slider up."
+},
+{
+"cat": "hint",
+"text": "Power suits have a weight limit of 25 kilograms. Go over it and you get no warning, no error - you just get slow."
+},
+{
+"cat": "hint",
+"text": "An uncharged power suit is not weak armour. It is no armour, plus weight. Fit a battery before anything else."
+},
+{
+"cat": "hint",
+"text": "Sprint Assist and Jump Assist eat your hunger unless you raise Exhaustion Compensation. The suit will pay in power instead."
+},
+{
+"cat": "hint",
+"text": "Eating the same food over and over restores less each time. Carry four or five different things and it stops."
+},
+{
+"cat": "hint",
+"text": "Twilight Forest bosses are locked in order. The Lich is invulnerable until the Naga is dead. You cannot skip ahead."
+},
+{
+"cat": "hint",
+"text": "An apiary with no flowers nearby does nothing at all. That is the most common reason a new one sits idle."
+},
+{
+"cat": "hint",
+"text": "Unanalysed bees show as Unknown. You cannot breed deliberately until you can read what you are holding."
+},
+{
+"cat": "hint",
+"text": "Analyse a seed before you plant it. Planting an unknown seed into a good line is how you quietly ruin it."
+},
+{
+"cat": "hint",
+"text": "The Tinker Table salvages at ninety percent. Nothing you try on a power suit is permanent, so experiment freely."
+},
+{
+"cat": "hint",
+"text": "Cave scorpion armour filters more air as a full set. The helmet does most of the work but every piece counts."
+},
+{
+"cat": "hint",
+"text": "Metal armour is cold at night and hot in the sun, exactly like vanilla iron always was. Cloth and robes insulate instead."
+},
+{
+"cat": "hint",
+"text": "Enchanted robes are close to nickel for warmth now, and they damp the climate rather than just adding heat."
+},
+{
+"cat": "hint",
+"text": "The Charm of Keeping saves your inventory when you die. It is consumed doing it, which is the point."
+},
+{
+"cat": "hint",
+"text": "Stand still for three minutes and the server stops your thirst and temperature. Stepping away costs you nothing."
+},
+{
+"cat": "hint",
+"text": "Nobody can see your name above your head, and nobody shows up on the minimap. That is deliberate."
+},
+{
+"cat": "hint",
+"text": "A Magic Map shows Twilight Forest structures as icons. Your minimap does not. Make one before you go hunting."
+},
+{
+"cat": "hint",
+"text": "The Smeltery gives two ingots per ore and it is built from grout, which is clay, sand and gravel. It is dirt cheap."
+},
+{
+"cat": "hint",
+"text": "Lapis on a Tinkers weapon is Looting. On this server Looting is the entire trophy mechanism."
+},
+{
+"cat": "hint",
+"text": "Bring a Maze Map to the Labyrinth. Without one you will be down there a very long time."
+},
+{
+"cat": "hint",
+"text": "A dynamo with nowhere to send power simply stops. That is not a bug."
+},
+{
+"cat": "hint",
+"text": "Weeds are off on this server. Nothing you plant will be strangled while you are away."
+},
+{
+"cat": "hint",
+"text": "You cannot lose a bee. A failed mutation hands both parents back, which is why it is safe to grind at."
+},
+{
+"cat": "warn",
+"text": "Extreme Chilli can give you heat stroke, and heat stroke is lethal. That is not a joke."
+},
+{
+"cat": "warn",
+"text": "Nights are genuinely cold now. Dress for the dark or stay near a fire."
+},
+{
+"cat": "warn",
+"text": "Fitting a jetpack and forgetting a parachute is the most common way to die in Modular Powersuits."
+},
+{
+"cat": "warn",
+"text": "The Dark Tower rebuilds its own maze around you while you are inside it. It is the nastiest structure in the Twilight Forest."
+},
+{
+"cat": "warn",
+"text": "The Deep Dark has no sky, endermen everywhere and very good ore. Bring light and bring something that filters air."
+},
+{
+"cat": "warn",
+"text": "Creepers and endermen grief terrain here, on purpose. Put a roof on anything you care about."
+},
+{
+"cat": "warn",
+"text": "Foul air underground does not show in your health bar until it is already hurting you."
+},
+{
+"cat": "warn",
+"text": "Solar generators make heat as well as power. In a desert at noon that is a problem worth a cooling system."
+},
+{
+"cat": "warn",
+"text": "Some mobs out there are not the mob you think they are. Look at the name before you commit."
+},
+{
+"cat": "warn",
+"text": "Ice cream cools you hard. Eating it in a blizzard is a decision, not an accident."
+},
+{
+"cat": "warn",
+"text": "The Outer Lands hit harder than anywhere else here. Bring the best armour you own."
+},
+{
+"cat": "warn",
+"text": "A grave lands where you died. If you died somewhere stupid, that is where it is."
+},
+{
+"cat": "warn",
+"text": "Millenaire villages will occasionally generate on top of something you built. That is an upstream bug and it will happen again."
+},
+{
+"cat": "lore",
+"text": "The world is quiet at this hour. That is usually when something finds you."
+},
+{
+"cat": "lore",
+"text": "Somewhere out there is a hive nobody has broken, in a tree nobody has walked past."
+},
+{
+"cat": "lore",
+"text": "There are bees in this pack that only breed in the End, and bees that only appear if you are doing something slightly stupid."
+},
+{
+"cat": "lore",
+"text": "Twelve dimensions. Most of them have never had a visitor."
+},
+{
+"cat": "lore",
+"text": "The Twilight Forest is permanently dusk. It never gets darker and it never gets lighter."
+},
+{
+"cat": "lore",
+"text": "Something in the cave dimension is said to attack in the dark. One in a million, and never on Halloween."
+},
+{
+"cat": "lore",
+"text": "Every reward on this server was rebuilt around one idea: a reward you can predict is a paycheck, one you cannot is a story."
+},
+{
+"cat": "lore",
+"text": "Nothing here punishes you for being away. Every system only ever pays you for being present."
+},
+{
+"cat": "lore",
+"text": "Bags contain bags. It costs nothing to give you that, and it is the best feeling in the game."
+},
+{
+"cat": "lore",
+"text": "The Last Millenium is the end of time, and there is almost nothing in it. That is deliberate."
+},
+{
+"cat": "lore",
+"text": "Nobody is watching your name float above the trees any more."
+},
+{
+"cat": "lore",
+"text": "Somewhere in your book is a chapter that has never been opened by anyone here."
+},
+{
+"cat": "lore",
+"text": "The Alpha Yeti has better fur than the ordinary ones. It also notices you first."
+},
+{
+"cat": "lore",
+"text": "Every death since the world began is still written down, item by item. Nothing is ever really lost."
+},
+{
+"cat": "lore",
+"text": "There is a sword in this pack that was named by somebody at two in the morning and it is still in the logs."
+},
+{
+"cat": "lore",
+"text": "The Naga circles. It does not corner well. The pillars are there for a reason."
+},
+{
+"cat": "lore",
+"text": "Go to bed. The bees will still be working when you get back - that is rather the point of bees."
+},
+{
+"cat": "lore",
+"text": "It is late. Whatever you are building will look better tomorrow, and it will still be there."
+},
+{
+"cat": "stat",
+"text": "There are {quests} quests across {lines} chapters in your book. Most of them have never been opened."
+},
+{
+"cat": "stat",
+"text": "This world has {dims} dimensions and {mods} mods holding it together."
+},
+{
+"cat": "stat",
+"text": "{deaths} deaths recorded since the world began, and every single inventory is still recoverable."
+},
+{
+"cat": "stat",
+"text": "{armour} pieces of armour on this server now tell you how they feel to wear."
+},
+{
+"cat": "stat",
+"text": "It is day {day} in this world."
+},
+{
+"cat": "stat",
+"text": "{quests} quests, {dims} dimensions, {mods} mods. Nobody has seen all of it."
+},
+{
+"cat": "stat",
+"text": "Day {day}, and the Wyvern Lair still has not had a visitor."
+},
+{
+"cat": "tip",
+"text": "Fit a cooling module to a power suit and it takes over your body temperature entirely. Heat Sink is rough, Liquid Nitrogen makes you immune."
+},
+{
+"cat": "tip",
+"text": "A cooled power suit also keeps its own air. Add a Water Tank and it handles thirst too - that is full life support."
+},
+{
+"cat": "hint",
+"text": "Cooling modules on a power suit do two jobs now: they manage the suit's heat AND your body temperature. The nitrogen one is the best in the game."
+},
+{
+"cat": "lore",
+"text": "Somebody will eventually build a suit that simply does not care what the weather is doing. Nobody has yet."
+}
+]

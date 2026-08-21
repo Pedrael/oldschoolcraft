@@ -52,6 +52,11 @@ class R:
         if t == END:    return None
         if t == LIST:
             et, n = self.u1(), self.i4()
+            if et == END:
+                # A well-formed empty list. A count > 0 here means the payloads
+                # were written with no element type and are unrecoverable, so
+                # drop the placeholders rather than carry Nones around.
+                return (END, [])
             return (et, [self.val(et) for _ in range(max(0, n))])
         if t == COMPOUND:
             out = {}
@@ -97,6 +102,11 @@ class W:
         if t == END:    return
         if t == LIST:
             et, items = v
+            # Safety net for the same trap: never write a non-empty list whose
+            # element type says End, or the contents are lost.
+            items = [i for i in items if i is not None]
+            if et == END and items:
+                et = COMPOUND if isinstance(items[0], dict) else BYTE
             self.u1(et); self.i4(len(items))
             for it in items: self.val(et, it)
             return
@@ -177,6 +187,12 @@ def entities(chunk):
     ent = lvl[1].get("Entities")
     if not ent:
         return None
-    # ent is (LIST, (elem_type, [items])) - callers want the items themselves,
-    # and want the SAME list object so appends/removals stick.
-    return ent[1][1]
+    et, items = ent[1]
+    if et == END:
+        # An EMPTY list stores its element type as TAG_End. Appending a
+        # compound to it and writing it back emits count=N with element type
+        # End, which drops every payload silently - a restored mob simply
+        # vanishes. Promote the element type now so appends survive.
+        lvl[1]["Entities"] = (ent[0], (COMPOUND, items))
+    # same list object, so callers' appends and removals stick
+    return items

@@ -35,6 +35,44 @@ import json, shutil, sys, time
 PRE = "preRequisites:11"
 
 
+
+def registry(level_dat="/home/duduserver/minecraft/1.7.10/world/level.dat"):
+    """Every item id this world knows, read straight out of level.dat.
+
+    Returns an empty set if it cannot be read, and callers must treat that as
+    "cannot verify" rather than "everything is invalid" - level.dat has been
+    truncated by an unclean shutdown before.
+    """
+    import gzip, re
+    try:
+        raw = gzip.decompress(open(level_dat, "rb").read())
+    except Exception:
+        return set()
+    return set(m.decode("utf8", "replace") for m in
+               re.findall(rb"[A-Za-z0-9_|]{2,32}:[A-Za-z0-9_.]{2,40}", raw))
+
+
+def item_ids(q):
+    """(context, id) for every item a quest requires or gives."""
+    out = []
+    for k, v in q.items():
+        if k.startswith("tasks"):
+            for _, tv in v.items():
+                for rk, rv in tv.items():
+                    if rk.startswith("requiredItems"):
+                        for _, iv in rv.items():
+                            if iv.get("id:8"):
+                                out.append(("task", iv["id:8"]))
+        if k.startswith("rewards"):
+            for _, rv in v.items():
+                for rk, rrv in rv.items():
+                    if rk.startswith("rewards"):
+                        for _, iv in rrv.items():
+                            if iv.get("id:8"):
+                                out.append(("reward", iv["id:8"]))
+    return out
+
+
 def load(path):
     # BetterQuesting writes DefaultQuests.json with a UTF-8 BOM
     with open(path, encoding="utf-8-sig") as f:
@@ -118,12 +156,41 @@ def check(path, fix=False, quiet=False):
     if gates:
         problems.append(f"checkbox quests used as prerequisites: {len(gates)}")
 
+    # 5. unknown item ids - uncompletable tasks / unclaimable rewards
+    reg = registry()
+    bad_items = []
+    if reg:
+        for q in entries:
+            for ctx, i in item_ids(q):
+                if i not in reg:
+                    bad_items.append((q["questID:3"], ctx, i))
+        if bad_items:
+            problems.append(f"unknown item ids: {len(bad_items)}")
+
+    # 6. a task-less quest that gates another may never complete
+    gating_empty = []
+    for q in entries:
+        ts = [tv for k, v in q.items() if k.startswith("tasks") for _, tv in v.items()]
+        if ts:
+            continue
+        i = q["questID:3"]
+        if any(i in x.get(PRE, []) for x in entries):
+            gating_empty.append(i)
+    if gating_empty:
+        problems.append(f"task-less quests used as prerequisites: {gating_empty}")
+
     say(f"{path}")
     say(f"   quests                 : {len(entries)}")
     say(f"   checkbox gates         : {len(gates)}")
     say(f"   dangling prerequisites : {len(dangling)}")
     say(f"   cyclic / self          : {len(cycles) + len(selfref)}")
     say(f"   duplicate questIDs     : {len(dupes)}")
+    say(f"   unknown item ids       : {len(bad_items)}"
+        + ("" if reg else "   (registry unreadable - NOT verified)"))
+    say(f"   task-less gates        : {len(gating_empty)}")
+    if bad_items and not quiet:
+        for qid, ctx, i in bad_items[:12]:
+            say(f"      quest {qid} {ctx}: {i}")
 
     if gates and not quiet:
         for g in gates:

@@ -239,5 +239,26 @@ def main():
         print(f"\nwritten: {os.path.getsize(DB)} bytes")
 
 
+def _lint_after_write():
+    """A checkbox quest used as a prerequisite locks a whole chapter while
+    still showing its tasks ticked - indistinguishable from broken data in
+    game. Never leave the database in that state; see bq_lint.py."""
+    import os as _os, sys as _sys
+    if "--apply" not in _sys.argv:
+        return
+    _sys.path.insert(0, _os.path.dirname(_os.path.abspath(__file__)))
+    try:
+        import bq_lint as _lint
+    except ImportError:
+        print("WARNING: bq_lint.py not found - quest graph NOT verified")
+        return
+    rc, problems = _lint.check(DB, fix=True, quiet=True)
+    if problems:
+        print("\nbq_lint repaired: " + "; ".join(problems))
+    else:
+        print("\nbq_lint: quest graph clean")
+
+
 if __name__ == "__main__":
     main()
+    _lint_after_write()

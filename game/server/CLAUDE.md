@@ -236,6 +236,37 @@ prerequisites, so real ordering between real quests survives - and ticks the
 offending boxes with `claimed:0` so the reward is still the player's to collect.
 Run it with the server **stopped**.
 
+### `bq_lint.py` - so it cannot come back
+
+Repairing the live database fixes today. It does **not** stop the trap being
+rebuilt, and there were three places it could return from:
+
+| Place | Why it matters |
+|---|---|
+| `world/betterquesting/QuestDatabase.json` | what everyone plays |
+| `config/betterquesting/DefaultQuests.json` | the template a **fresh world** is built from |
+| `~/mctools/add_*_line.py` | any **future** quest line |
+
+All three are now clean, and the generators enforce it themselves: each one
+calls `bq_lint.check(DB, fix=True)` after writing, so a line cannot be shipped
+with a broken graph even if the author forgets.
+
+```bash
+bq_lint.py <QuestDatabase.json|DefaultQuests.json> [--fix]   # exit 1 = problems
+```
+
+It checks four things, all invisible from inside the game:
+
+- **checkbox gates** - the fault above; `--fix` splices them out
+- **dangling prerequisites** - pointing at a quest that does not exist, which
+  locks the quest forever
+- **self-referencing and cyclic prerequisites** - same effect
+- **duplicate questIDs** - BetterQuesting matches progress to quests by
+  `questID`, so a duplicate silently merges two quests' progress
+
+Regression-tested by injecting each fault into a copy of the live database and
+confirming the linter catches and repairs it.
+
 ### Parties share the work, not the acknowledgement
 
 `world/betterquesting/QuestingParties.json` holds the party. Inside one,
@@ -745,6 +776,7 @@ and everything that writes takes a backup first.
 | `mc-health.py` | 5 min | Asserts the server actually serves: startup finished, log advancing, console answers. `--restart` acts on failure |
 | `restore_leveldat.py` | on demand | Repairs a truncated `world/level.dat` from a verified rescue copy |
 | `unblock_checkbox_gates.py` | on demand | Splices checkbox quests out of the prerequisite graph and ticks the ones that were gating |
+| `bq_lint.py` | after any quest edit | Validates a quest graph: checkbox gates, dangling/cyclic prerequisites, duplicate questIDs. `--fix` repairs. Generators call it automatically |
 
 **Who is online, without asking.** `mc-lifesupport` and `mc-afk-guard` used to
 run `list` on every tick - three times a minute, awake or not, which put ~5700

@@ -48,8 +48,12 @@ class Reader:
         if t == TAG_DOUBLE: return self.f8()
         if t == TAG_BYTE_ARRAY: return self.raw(self.i4())
         if t == TAG_STRING: return self.string()
+        if t == TAG_END:
+            return None            # some writers emit TAG_End payloads; tolerate them
         if t == TAG_LIST:
             it, n = self.u1(), self.i4()
+            if it == TAG_END:
+                return []          # empty list, element type unset - skip the count
             return [self.payload(it) for _ in range(max(0, n))]
         if t == TAG_COMPOUND:
             out = {}
@@ -57,7 +61,12 @@ class Reader:
                 tt = self.u1()
                 if tt == TAG_END:
                     return out
-                out[self.string()] = self.payload(tt)
+                # Read the NAME first. `out[self.string()] = self.payload(tt)`
+                # looks equivalent but Python evaluates the right-hand side
+                # before the subscript, so it read the payload before the name
+                # and desynced every nested compound.
+                key = self.string()
+                out[key] = self.payload(tt)
         if t == TAG_INT_ARRAY:
             n = self.i4()
             return [self.i4() for _ in range(n)]

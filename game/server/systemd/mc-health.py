@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+"""mc-health - is the server actually serving, or just holding the port open?
+
+On 2026-08-21 an unclean shutdown truncated world/level.dat to 0 bytes. The
+server then deadlocked during world load and sat in futex_do_wait for 13 hours.
+Every check we had said it was fine:
+
+  systemctl is-active   -> active   (the JVM was alive, just blocked)
+  port 25565            -> listening (bound before world load ever started)
+  mc-watcher            -> quiet    (a server that stops logging looks the same
+                                     as a server with nothing happening)
+
+So this asserts the three things those miss:
+
+  1. startup COMPLETED       - "Done (" appears in the current latest.log
+  2. the log is ADVANCING    - it has grown, or the server answers on the
+                               console, within STALE_AFTER seconds
+  3. the console RESPONDS    - write to the FIFO and see output appear
+
+Any failure is logged and announced once; recovery is announced too, so the
+log does not fill with repeats. --restart lets it act rather than just report.
+"""
+import json, os, re, subprocess, sys, time
+
+ROOT  = "/home/duduserver/minecraft/1.7.10"
+LOG   = f"{ROOT}/logs/latest.log"
+FIFO  = "/run/minecraft/console.in"
+STATE = "/home/duduserver/mctools/health-state.json"
+AUDIT = "/home/duduserver/mctools/health.log"
+
+STALE_AFTER   = 900    # 15 min with no new log line AND no console reply
+BOOT_GRACE    = 420    # 7 min: world load on this pack takes ~1 min, be generous
+
+
+def audit(msg):
+    with open(AUDIT, "a") as f:
+        f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')}  {msg}\n")
+
+
+def load():
+    try:
+        return json.load(open(STATE))
+    except Exception:
+        return {}
+
+
+def uptime_seconds():
+    out = subprocess.run(
+        ["systemctl", "show", "minecraft", "-p", "ActiveEnterTimestampMonotonic",
+         "--value"], capture_output=True, text=True).stdout.strip()
+    try:
+        started = int(out) / 1_000_000
+    except ValueError:
+        return None
+    with open("/proc/uptime") as f:
+        now = float(f.read().split()[0])
+    return now - started
+
+
+def console_replies(timeout=6.0):
+    """Write to the FIFO and see whether the log grows. A deadlocked server
+    accepts the write (the FIFO has a permanent reader) but never answers."""
+    if not os.path.exists(FIFO):
+        return False
+    try:
+        before = os.path.getsize(LOG)
+    except OSError:
+        return False
+    try:
+        # non-blocking open: if nothing is reading, do not hang forever
+        fd = os.open(FIFO, os.O_WRONLY | os.O_NONBLOCK)
+        os.write(fd, b"seed\n")     # harmless, prints the world seed
+        os.close(fd)
+    except OSError:
+        return False
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        time.sleep(0.4)
+        try:
+            if os.path.getsize(LOG) > before:
+                return True
+        except OSError:
+            return False
+    return False
+
+
+def check():
+    """-> (ok, reason)"""
+    state = subprocess.run(["systemctl", "is-active", "minecraft"],
+                           capture_output=True, text=True).stdout.strip()
+    if state != "active":
+        return False, f"service is {state}"
+
+    up = uptime_seconds()
+    if up is not None and up < BOOT_GRACE:
+        return True, f"starting up ({int(up)}s, within grace)"
+
+    try:
+        log = open(LOG, "r", encoding="utf-8", errors="replace").read()
+    except OSError as e:
+        return False, f"cannot read latest.log: {e}"
+
+    if "Done (" not in log:
+        return False, "startup never completed - no 'Done (' in latest.log"
+
+    for pat, why in [(r"Exception reading \./world/level\.dat", "level.dat unreadable"),
+                     (r"Failed to start the minecraft server", "server failed to start")]:
+        if re.search(pat, log):
+            return False, why
+
+    age = time.time() - os.path.getmtime(LOG)
+    if age > STALE_AFTER and not console_replies():
+        return False, (f"log idle {int(age/60)} min and console did not answer "
+                       f"- server is hung")
+    return True, "ok"
+
+
+def main():
+    may_restart = "--restart" in sys.argv
+    ok, reason = check()
+    prev = load().get("ok")
+
+    if not ok and prev is not False:
+        audit(f"UNHEALTHY: {reason}")
+    elif ok and prev is False:
+        audit(f"recovered: {reason}")
+
+    json.dump({"ok": ok, "reason": reason, "when": time.time()},
+              open(STATE, "w"), indent=1)
+
+    print(("OK   " if ok else "FAIL ") + reason)
+
+    if not ok and may_restart:
+        audit("restarting minecraft")
+        subprocess.run(["sudo", "-n", "systemctl", "restart", "minecraft"])
+    sys.exit(0 if ok else 1)
+
+
+if __name__ == "__main__":
+    main()

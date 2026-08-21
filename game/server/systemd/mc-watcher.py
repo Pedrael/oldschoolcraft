@@ -21,6 +21,7 @@ FIFO   = "/run/minecraft/console.in"
 LOG    = f"{ROOT}/logs/latest.log"
 STATE  = "/home/duduserver/mctools/watcher-state.json"
 AUDIT  = "/home/duduserver/mctools/watcher.log"
+ONLINE = "/home/duduserver/mctools/online.json"
 
 PLAYERS = ("DuduPhudu", "VerrassVerrass", "CubeThePenguin")
 
@@ -69,6 +70,41 @@ def load():
 
 def save(s):
     json.dump(s, open(STATE, "w"), indent=1)
+
+
+# ----------------------------------------------------------------- roster --
+def write_online(names):
+    """Publish who is online so the timer scripts need not ask the console."""
+    try:
+        json.dump({"players": sorted(names), "when": time.time()},
+                  open(ONLINE, "w"), indent=1)
+    except OSError:
+        pass
+
+
+def rebuild_online():
+    """Replay the current latest.log to work out who is on right now.
+
+    Needed because this service seeks to the END of the log on start, so a
+    restart would otherwise forget everyone already connected.
+    """
+    on = set()
+    try:
+        with open(LOG, "r", encoding="utf-8", errors="replace") as f:
+            for ln in f:
+                m = LINE.match(ln.rstrip("\n"))
+                if not m:
+                    continue
+                b = m.group(2).strip()
+                j = re.match(r"^(\S+) joined the game$", b)
+                l = re.match(r"^(\S+) left the game$", b)
+                if j and j.group(1) in PLAYERS:
+                    on.add(j.group(1))
+                elif l and l.group(1) in PLAYERS:
+                    on.discard(l.group(1))
+    except OSError:
+        pass
+    return on
 
 
 # ------------------------------------------------------------------ facts --
@@ -214,10 +250,14 @@ def main():
         state["seen_dims"].append(0)
         save(state)
 
+    online = rebuild_online()
+    write_online(online)
+
     f = None
     inode = None
     pos = 0
     last_dim_check = 0
+    last_roster_touch = 0
 
     while True:
         try:
@@ -237,9 +277,15 @@ def main():
                 if m:
                     body = m.group(2).strip()
                     jm = re.match(r"^(\S+) joined the game$", body)
+                    lm2 = re.match(r"^(\S+) left the game$", body)
                     if jm and jm.group(1) in PLAYERS:
+                        online.add(jm.group(1))
+                        write_online(online)
                         time.sleep(2)
                         on_join(jm.group(1), state)
+                    elif lm2 and lm2.group(1) in PLAYERS:
+                        online.discard(lm2.group(1))
+                        write_online(online)
                     elif DEATH_VERB.match(body) and body.split(" ", 1)[0] in PLAYERS:
                         on_death(body.split(" ", 1)[0], body)
             else:
@@ -247,11 +293,18 @@ def main():
                 try:
                     st = os.stat(LOG)
                     if st.st_ino != inode or st.st_size < pos:
-                        f.close(); f = None; continue
+                        f.close(); f = None
+                        online = rebuild_online()
+                        write_online(online)
+                        continue
                 except OSError:
                     f.close(); f = None; continue
 
                 now = time.time()
+                # re-stamp the roster so consumers can tell it is still fresh
+                if now - last_roster_touch > 30:
+                    last_roster_touch = now
+                    write_online(online)
                 if now - last_dim_check > 20:
                     last_dim_check = now
                     if check_dims(state):

@@ -83,6 +83,20 @@ def online_players():
     return names
 
 
+def roster(max_age=150):
+    """Who mc-watcher says is online, or None if its roster is stale.
+
+    Reading a file costs nothing; running `list` writes a line to latest.log
+    every single time, which is what used to bury the log.
+    """
+    try:
+        d = json.load(open("/home/duduserver/mctools/online.json"))
+    except Exception:
+        return None
+    if time.time() - d.get("when", 0) > max_age:
+        return None
+    return d.get("players", [])
+
 def uuid_map():
     try:
         return {p["name"]: p["uuid"] for p in json.load(open(f"{ROOT}/usercache.json"))}
@@ -135,7 +149,9 @@ def main():
     dry = "--dry-run" in sys.argv
     if not os.path.exists(FIFO):
         return
-    players = online_players()
+    players = roster()
+    if players is None:              # mc-watcher down: ask directly
+        players = online_players()
     if not players:
         return
 

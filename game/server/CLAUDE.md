@@ -200,9 +200,15 @@ Three things that make a quest impossible rather than merely wrong:
 - **Item ids.** Validate every id against the world's own Forge registry, which
   is readable straight out of `world/level.dat` as plain strings. Both scripts
   do this and abort on a miss.
-- **When unsure, use `bq_standard:checkbox`.** A quest that self-ticks and
-  explains something still teaches. A quest nobody can finish is worse than no
-  quest at all.
+- **When unsure, use `bq_standard:checkbox` — but never as a prerequisite.**
+  A quest nobody can finish is worse than no quest at all, so a checkbox is the
+  right fallback wherever an item's metadata cannot be verified. **It does not
+  self-tick.** An earlier version of this file claimed it did; that was wrong,
+  and building the teaching lines on it locked 37 quests for one player and 27
+  for another. Somebody has to open the quest and click. Retrieval tasks *do*
+  detect passively, so players never learn that some quests need a click —
+  there is no pattern for them to notice. Keep checkboxes out of
+  `preRequisites` entirely and the mistake cannot recur.
 
 Task types in use here: `bq_standard:retrieval`, `checkbox`, `hunt`.
 Rewards: `bq_standard:item` and `bq_standard:xp`.

@@ -771,7 +771,7 @@ and everything that writes takes a backup first.
 | `mc-watcher.py` | service, tails `latest.log` | On death, hands the player their exact `/ob_inventory spawn <id>` command. Greets joins with live world facts. Announces first arrival in any of the 12 dimensions |
 | `mc-tip.py` | timer | Rotates 103 tips from `tips.json` through `tellraw` |
 | `mc-lifesupport.py` | timer | Reads worn armour out of playerdata; drives `/envirostat` so a power suit with a cooling module actually is climate control |
-| `mc-afk-guard.py` | timer | Freezes hunger and thirst while a player is idle |
+| `mc-afk-guard.py` | timer | Tops up thirst and normalises body temperature while a player is idle. **Not hunger** - vanilla hunger only charges for *doing* things (measured: exhaustion flat at 0.115 over 44s idle), so there is nothing to freeze |
 | `mc-digest.py` | weekly | Deaths, causes, play hours, quest progress, unvisited dimensions - to chat and to `digest-latest.txt` |
 | `mc-health.py` | 5 min | Asserts the server actually serves: startup finished, log advancing, console answers. `--restart` acts on failure |
 | `restore_leveldat.py` | on demand | Repairs a truncated `world/level.dat` from a verified rescue copy |

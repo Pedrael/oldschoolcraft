@@ -256,3 +256,61 @@ mods.thaumcraft.Loot.addRareLoot(<Mekanism:Robit>, 2);
 mods.thaumcraft.Loot.addRareLoot(<Mekanism:PortableTeleporter>, 2);
 
 print("[Fortune:Frontier] Mekanism loot loaded.");
+
+
+// =====================================================================
+//  7e. MEKANISM, SUBTYPED ITEMS
+//      Metadata verified in game, one probe file per item because an
+//      out-of-range Ingot meta THROWS and aborts the whole script -
+//      unlike Dust, which politely returns "Invalid.name".
+//
+//        Ingot          0 RefinedObsidian 1 Osmium 2 Bronze
+//                       3 Glowstone 4 Steel 5 Copper 6 Tin
+//        ControlCircuit 0 Basic 1 Advanced 2 Elite 3 Ultimate
+//        Polyethene     0 Pellet 1 Rod 2 Sheet 3 PlaStick
+//        PartTransmitter 0-3 Universal Cable tiers
+//        Balloon        0-15 dye colours
+//
+//      NOT used: EnergyCube, GasTank and Substrate show the SAME name at
+//      every meta - their tier lives in NBT, not metadata, so :1 is not
+//      "Advanced", it is another Basic. OtherDust:2 is item.nullDust.name.
+// =====================================================================
+
+// floor: balloons are pure decoration and pure fun
+for cat in everywhere {
+    vanilla.loot.addChestLoot(cat, <Mekanism:Balloon:1> % 6, 1, 2);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Balloon:11> % 6, 1, 2);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Balloon:4> % 6, 1, 2);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Polyethene:0> % 10, 2, 6);
+}
+
+// step: the components that save a real amount of grinding
+for cat in dangerous {
+    vanilla.loot.addChestLoot(cat, <Mekanism:ControlCircuit:0> % 7, 1, 3);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Polyethene:1> % 6, 1, 4);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Polyethene:2> % 5, 1, 3);
+    vanilla.loot.addChestLoot(cat, <Mekanism:PartTransmitter:0> % 6, 2, 6);
+    // a taste of osmium, not a substitute for going and finding it
+    vanilla.loot.addChestLoot(cat, <Mekanism:Ingot:1> % 4, 1, 2);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Ingot:4> % 5, 1, 3);
+}
+
+// spike
+for cat in deep {
+    vanilla.loot.addChestLoot(cat, <Mekanism:ControlCircuit:1> % 3, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:ControlCircuit:2> % 1, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Ingot:0> % 2, 1, 2);
+    vanilla.loot.addChestLoot(cat, <Mekanism:PartTransmitter:1> % 2, 1, 3);
+}
+
+// bags
+mods.thaumcraft.Loot.addCommonLoot(<Mekanism:Polyethene:0>, 10);
+mods.thaumcraft.Loot.addCommonLoot(<Mekanism:Balloon:11>, 6);
+mods.thaumcraft.Loot.addUncommonLoot(<Mekanism:ControlCircuit:0>, 8);
+mods.thaumcraft.Loot.addUncommonLoot(<Mekanism:Ingot:1>, 6);
+mods.thaumcraft.Loot.addUncommonLoot(<Mekanism:Polyethene:2>, 6);
+mods.thaumcraft.Loot.addRareLoot(<Mekanism:ControlCircuit:1>, 5);
+mods.thaumcraft.Loot.addRareLoot(<Mekanism:ControlCircuit:2>, 2);
+mods.thaumcraft.Loot.addRareLoot(<Mekanism:Ingot:0>, 4);
+
+print("[Fortune:Frontier] Mekanism subtyped items loaded.");

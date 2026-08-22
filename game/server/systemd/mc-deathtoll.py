@@ -37,7 +37,7 @@ AUDIT  = "/home/duduserver/mctools/deathtoll.log"
 
 COIN      = ("Thaumcraft:ItemResource", 18)   # Gold Coin, verified in game
 COIN_ALT  = ("IC2:itemCoin", 0)               # Industrial Credit, also accepted
-DIVISOR   = 30      # value points per coin
+DIVISOR   = 20      # value points per coin (lower = pricier)
 MIN_PRICE = 1
 MAX_PRICE = 48
 

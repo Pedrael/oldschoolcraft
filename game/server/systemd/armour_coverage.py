@@ -43,6 +43,10 @@ METAL  = (-1.00, 0.00, 2.00, 1.00, 1.00, 1.10, 0.00)  # vanilla iron
 GOLDY  = (0.00, 0.00, 2.50, 1.00, 1.00, 1.20, 0.00)   # vanilla gold
 DENSE  = (0.00, 0.00, 0.00, 1.00, 1.00, 0.90, 0.00)   # vanilla diamond
 FIRE   = (1.00, 0.50, -1.00, 1.00, 0.92, 0.85, 0.00)  # nether: warm, sheds sun
+def POWERED(slot):                                     # MPS: sealed and climate-controlled
+    return (0.00, 0.00, 0.00, 0.92, 0.94, 0.90, 1.00 if slot == "head" else 0.25)
+
+
 def SEALED(slot):                                      # boron/lead: shielded
     return (1.00, 0.50, 0.00, 1.00, 1.00, 1.00, 0.50 if slot == "head" else 0.25)
 
@@ -63,6 +67,15 @@ SPECIAL = {
     "IC2:itemArmorQuantumHelmet":    (0.00, 0.00, 0.00, 1.00, 1.00, 0.95, 1.00),
     "IC2:itemArmorNanoHelmet":       (0.00, 0.00, 0.00, 1.00, 1.00, 0.95, 0.50),
     "enviromine:hardHat":            (0.00, 0.00, 0.00, 1.00, 1.00, 1.00, 0.25),
+    # Mekanism wearables. The mask and tank are sealed breathing gear and get
+    # the same treatment EnviroMine gives its own gas mask above; the auditor
+    # would otherwise hand the mask a metal profile with no air protection at
+    # all, which is exactly backwards.
+    "Mekanism:GasMask":              (0.00, 0.00, 0.00, 1.00, 1.00, 1.00, 1.00),
+    "Mekanism:ScubaTank":            (0.00, 0.00, 0.00, 1.00, 1.00, 1.00, 1.00),
+    "Mekanism:Jetpack":              (-1.00, 0.00, 2.00, 1.00, 1.00, 1.10, 0.00),
+    "Mekanism:ArmoredJetpack":       (-1.00, 0.00, 2.00, 1.00, 1.00, 1.10, 0.00),
+    "Mekanism:FreeRunners":          (-1.00, 0.00, 2.00, 1.00, 1.00, 1.10, 0.00),
 }
 
 CLOTHY = re.compile(r"robe|cloth|manaweave|cultist|silk|wool|fabric|jerkin|tunic|"
@@ -128,9 +141,10 @@ def slot(ident):
     entirely -- that flaw hid 21 pieces of real armour from an earlier audit."""
     n = ident.split(":", 1)[1].lower()
     if re.search(r"helmet|helm|hood|mask|cowl|goggles|hat|circlet|crown", n): return "head"
-    if re.search(r"boots|boot", n):                                          return "feet"
+    if re.search(r"boots|boot|freerunners", n):                               return "feet"
     if re.search(r"leggings|legs|greaves|pants", n):                         return "legs"
-    if re.search(r"chestplate|chest|plate|robe|jerkin|tunic|vest|cuirass|overalls", n): return "chest"
+    if re.search(r"chestplate|chest|plate|robe|jerkin|tunic|vest|cuirass|overalls|"
+                 r"scubatank|jetpack", n): return "chest"
     return None
 
 
@@ -152,6 +166,14 @@ def profile(ident):
     if ident in SPECIAL:
         return SPECIAL[ident], "special"
     n = ident.split(":", 1)[1].lower()
+    # Modular Powersuits: a powered sealed suit, not a lump of metal
+    if ident.startswith("powersuits:"):
+        return POWERED(slot(ident)), "powered"
+    # Twilight Forest sets whose names already state their job
+    if re.search(r"arctic|yeti", n):        # fur cold-weather kit
+        return ROBE, "robe"
+    if re.search(r"fiery", n):              # fiery blood - sheds heat
+        return FIRE, "fire"
     if re.search(r"robe|manaweave|cultist|sanguine|ichorcloth|silk|arcane|wizard", n):
         return ROBE, "robe"
     if re.search(r"cloth|wool|fabric|jerkin|tunic|overalls|apiarist|vest|hood|cowl|leather", n):

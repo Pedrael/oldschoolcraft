@@ -312,6 +312,16 @@
 // IC2:itemArmorHazmatLeggings
 <IC2:itemArmorHazmatLeggings>.addTooltip(format.green("Filters some foul air."));
 
+// IC2:itemArmorJetpack
+<IC2:itemArmorJetpack>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<IC2:itemArmorJetpack>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+<IC2:itemArmorJetpack>.addTooltip(format.aqua("Carries a camel pack."));
+
+// IC2:itemArmorJetpackElectric
+<IC2:itemArmorJetpackElectric>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<IC2:itemArmorJetpackElectric>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+<IC2:itemArmorJetpackElectric>.addTooltip(format.aqua("Carries a camel pack."));
+
 // IC2:itemArmorNanoBoots
 <IC2:itemArmorNanoBoots>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
 <IC2:itemArmorNanoBoots>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
@@ -358,6 +368,121 @@
 // IC2:itemStaticBoots
 <IC2:itemStaticBoots>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
 <IC2:itemStaticBoots>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// Mekanism:ArmoredJetpack
+<Mekanism:ArmoredJetpack>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<Mekanism:ArmoredJetpack>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+<Mekanism:ArmoredJetpack>.addTooltip(format.aqua("Carries a camel pack."));
+
+// Mekanism:FreeRunners
+<Mekanism:FreeRunners>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<Mekanism:FreeRunners>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// Mekanism:GasMask
+<Mekanism:GasMask>.addTooltip(format.green("Filters foul air. Full protection."));
+
+// Mekanism:Jetpack
+<Mekanism:Jetpack>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<Mekanism:Jetpack>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+<Mekanism:Jetpack>.addTooltip(format.aqua("Carries a camel pack."));
+
+// Mekanism:ScubaTank
+<Mekanism:ScubaTank>.addTooltip(format.green("Filters foul air. Full protection."));
+<Mekanism:ScubaTank>.addTooltip(format.aqua("Carries a camel pack."));
+
+// MekanismTools:BronzeBoots
+<MekanismTools:BronzeBoots>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:BronzeBoots>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:BronzeChestplate
+<MekanismTools:BronzeChestplate>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:BronzeChestplate>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+<MekanismTools:BronzeChestplate>.addTooltip(format.aqua("Carries a camel pack."));
+
+// MekanismTools:BronzeHelmet
+<MekanismTools:BronzeHelmet>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:BronzeHelmet>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:BronzeLeggings
+<MekanismTools:BronzeLeggings>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:BronzeLeggings>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:GlowstoneBoots
+<MekanismTools:GlowstoneBoots>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:GlowstoneBoots>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:GlowstoneChestplate
+<MekanismTools:GlowstoneChestplate>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:GlowstoneChestplate>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+<MekanismTools:GlowstoneChestplate>.addTooltip(format.aqua("Carries a camel pack."));
+
+// MekanismTools:GlowstoneHelmet
+<MekanismTools:GlowstoneHelmet>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:GlowstoneHelmet>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:GlowstoneLeggings
+<MekanismTools:GlowstoneLeggings>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:GlowstoneLeggings>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:LapisLazuliBoots
+<MekanismTools:LapisLazuliBoots>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:LapisLazuliBoots>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:LapisLazuliChestplate
+<MekanismTools:LapisLazuliChestplate>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:LapisLazuliChestplate>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+<MekanismTools:LapisLazuliChestplate>.addTooltip(format.aqua("Carries a camel pack."));
+
+// MekanismTools:LapisLazuliHelmet
+<MekanismTools:LapisLazuliHelmet>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:LapisLazuliHelmet>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:LapisLazuliLeggings
+<MekanismTools:LapisLazuliLeggings>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:LapisLazuliLeggings>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:ObsidianBoots
+<MekanismTools:ObsidianBoots>.addTooltip(format.darkAqua("Also shades you from the sun."));
+
+// MekanismTools:ObsidianChestplate
+<MekanismTools:ObsidianChestplate>.addTooltip(format.darkAqua("Also shades you from the sun."));
+<MekanismTools:ObsidianChestplate>.addTooltip(format.aqua("Carries a camel pack."));
+
+// MekanismTools:ObsidianHelmet
+<MekanismTools:ObsidianHelmet>.addTooltip(format.darkAqua("Also shades you from the sun."));
+
+// MekanismTools:ObsidianLeggings
+<MekanismTools:ObsidianLeggings>.addTooltip(format.darkAqua("Also shades you from the sun."));
+
+// MekanismTools:OsmiumBoots
+<MekanismTools:OsmiumBoots>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:OsmiumBoots>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:OsmiumChestplate
+<MekanismTools:OsmiumChestplate>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:OsmiumChestplate>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+<MekanismTools:OsmiumChestplate>.addTooltip(format.aqua("Carries a camel pack."));
+
+// MekanismTools:OsmiumHelmet
+<MekanismTools:OsmiumHelmet>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:OsmiumHelmet>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:OsmiumLeggings
+<MekanismTools:OsmiumLeggings>.addTooltip(format.gray("Cold at night. Punishing in the sun."));
+<MekanismTools:OsmiumLeggings>.addTooltip(format.darkAqua("Also conducts the sun's heat."));
+
+// MekanismTools:SteelBoots
+<MekanismTools:SteelBoots>.addTooltip(format.darkAqua("Also shades you from the sun."));
+
+// MekanismTools:SteelChestplate
+<MekanismTools:SteelChestplate>.addTooltip(format.darkAqua("Also shades you from the sun."));
+<MekanismTools:SteelChestplate>.addTooltip(format.aqua("Carries a camel pack."));
+
+// MekanismTools:SteelHelmet
+<MekanismTools:SteelHelmet>.addTooltip(format.darkAqua("Also shades you from the sun."));
+
+// MekanismTools:SteelLeggings
+<MekanismTools:SteelLeggings>.addTooltip(format.darkAqua("Also shades you from the sun."));
 
 // MoCreatures:elephantchest
 <MoCreatures:elephantchest>.addTooltip(format.gray("Cold at night. Punishing in the sun."));

@@ -173,3 +173,86 @@ mods.thaumcraft.Loot.addRareLoot(<powersuits:item.powerArmorHelmet>, 3);
 mods.thaumcraft.Loot.addRareLoot(<powersuits:item.powerFist>, 2);
 
 print("[Fortune:Frontier] Twilight Forest + Modular Powersuits loot loaded.");
+
+
+// =====================================================================
+//  7d. THE MACHINE AGE - Mekanism
+//      Added 2026-08-22. Mekanism's ore multiplication is disabled, so
+//      nothing here is an ore shortcut: it is components, utilities and
+//      the wearables, which is the part of the mod worth finding.
+//
+//      Metadata-free items only. Ingot, ControlCircuit, EnergyCube and
+//      Balloon are all subtyped and their meta order was not verified,
+//      and a wrong Damage value is not worth shipping.
+// =====================================================================
+
+// floor: unfamiliar industrial oddments
+for cat in everywhere {
+    vanilla.loot.addChestLoot(cat, <Mekanism:Salt> % 14, 2, 6);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Sawdust> % 12, 2, 8);
+    vanilla.loot.addChestLoot(cat, <Mekanism:BioFuel> % 12, 3, 9);
+    vanilla.loot.addChestLoot(cat, <Mekanism:CompressedRedstone> % 8, 1, 3);
+    vanilla.loot.addChestLoot(cat, <Mekanism:CompressedCarbon> % 8, 1, 3);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Substrate> % 8, 1, 4);
+}
+
+// step: the components that actually unlock the machines
+for cat in dangerous {
+    vanilla.loot.addChestLoot(cat, <Mekanism:EnrichedIron> % 10, 2, 6);
+    vanilla.loot.addChestLoot(cat, <Mekanism:EnrichedAlloy> % 7, 1, 4);
+    vanilla.loot.addChestLoot(cat, <Mekanism:ReinforcedAlloy> % 4, 1, 2);
+    vanilla.loot.addChestLoot(cat, <Mekanism:EnergyTablet> % 5, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:ElectrolyticCore> % 5, 1, 2);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Polyethene> % 6, 1, 4);
+    // utilities - these change how somebody plays tomorrow
+    vanilla.loot.addChestLoot(cat, <Mekanism:Configurator> % 4, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Dictionary> % 4, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:NetworkReader> % 3, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:SeismicReader> % 3, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:CardboardBox> % 4, 1, 2);
+    vanilla.loot.addChestLoot(cat, <Mekanism:WalkieTalkie> % 2, 1, 1);
+}
+
+// the mask is a genuine survival find here - EnviroMine tracks air, and
+// this is one of the few things that seals it completely.
+for cat in dangerous {
+    vanilla.loot.addChestLoot(cat, <Mekanism:GasMask> % 4, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:FreeRunners> % 3, 1, 1);
+}
+
+// scholarly places: the reference tools
+for cat in scholarly {
+    vanilla.loot.addChestLoot(cat, <Mekanism:Dictionary> % 5, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:ConfigurationCard> % 4, 1, 2);
+    vanilla.loot.addChestLoot(cat, <Mekanism:CraftingFormula> % 3, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:GaugeDropper> % 3, 1, 1);
+}
+
+// spike: remembered
+for cat in deep {
+    vanilla.loot.addChestLoot(cat, <Mekanism:ScubaTank> % 2, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Jetpack> % 2, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:ArmoredJetpack> % 1, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:AtomicDisassembler> % 1, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:AtomicAlloy> % 2, 1, 2);
+    vanilla.loot.addChestLoot(cat, <Mekanism:TeleportationCore> % 1, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:PortableTeleporter> % 1, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:Robit> % 1, 1, 1);
+    vanilla.loot.addChestLoot(cat, <Mekanism:ElectricBow> % 1, 1, 1);
+}
+
+// bags
+mods.thaumcraft.Loot.addCommonLoot(<Mekanism:Salt>, 12);
+mods.thaumcraft.Loot.addCommonLoot(<Mekanism:BioFuel>, 10);
+mods.thaumcraft.Loot.addCommonLoot(<Mekanism:CompressedRedstone>, 8);
+mods.thaumcraft.Loot.addUncommonLoot(<Mekanism:EnrichedAlloy>, 8);
+mods.thaumcraft.Loot.addUncommonLoot(<Mekanism:Configurator>, 5);
+mods.thaumcraft.Loot.addUncommonLoot(<Mekanism:CardboardBox>, 5);
+mods.thaumcraft.Loot.addUncommonLoot(<Mekanism:GasMask>, 5);
+mods.thaumcraft.Loot.addRareLoot(<Mekanism:ScubaTank>, 4);
+mods.thaumcraft.Loot.addRareLoot(<Mekanism:Jetpack>, 3);
+mods.thaumcraft.Loot.addRareLoot(<Mekanism:AtomicDisassembler>, 2);
+mods.thaumcraft.Loot.addRareLoot(<Mekanism:Robit>, 2);
+mods.thaumcraft.Loot.addRareLoot(<Mekanism:PortableTeleporter>, 2);
+
+print("[Fortune:Frontier] Mekanism loot loaded.");

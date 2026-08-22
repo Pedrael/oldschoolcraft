@@ -185,6 +185,20 @@ def on_death(player, message):
              "color": "gray", "italic": True}]))
     audit(f"death: {player} -> {fid} ({kind})")
 
+    # Death insurance. Runs in OBSERVE mode until the armed flag exists, so it
+    # logs what it would have charged without touching anybody's items:
+    #     touch ~/mctools/deathtoll.armed     to enable
+    #     rm    ~/mctools/deathtoll.armed     to disable instantly
+    try:
+        import subprocess as _sp
+        armed = os.path.exists("/home/duduserver/mctools/deathtoll.armed")
+        cmd = ["/usr/bin/python3", "/home/duduserver/mctools/mc-deathtoll.py",
+               player, fid] + ([] if armed else ["--dry-run"])
+        _sp.Popen(cmd, stdout=open("/home/duduserver/mctools/deathtoll.out", "a"),
+                  stderr=_sp.STDOUT)
+    except Exception as e:
+        audit(f"deathtoll failed to launch: {e}")
+
 
 def on_join(player, state):
     f = facts()

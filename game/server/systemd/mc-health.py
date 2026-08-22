@@ -29,7 +29,7 @@ STATE = "/home/duduserver/mctools/health-state.json"
 AUDIT = "/home/duduserver/mctools/health.log"
 
 STALE_AFTER   = 900    # 15 min with no new log line AND no console reply
-BOOT_GRACE    = 420    # 7 min: world load on this pack takes ~1 min, be generous
+BOOT_GRACE    = 900    # 15 min: adding a mod re-allocates ids and boots slowly
 
 
 def audit(msg):
@@ -84,6 +84,15 @@ def console_replies(timeout=6.0):
     return False
 
 
+
+def awaiting_fml_query(log):
+    """Is the boot stalled on an FML confirmation prompt rather than deadlocked?"""
+    return any(m in log for m in (
+        "missing blocks/items will get removed",
+        "Forge Mod Loader detected missing blocks/items",
+        "There are unidentified mappings in this world",
+    ))
+
 def check():
     """-> (ok, reason)"""
     state = subprocess.run(["systemctl", "is-active", "minecraft"],
@@ -101,6 +110,14 @@ def check():
         return False, f"cannot read latest.log: {e}"
 
     if "Done (" not in log:
+        # A boot blocked on an FML startup question looks exactly like a hung
+        # boot, but restarting re-asks the same question forever and wipes the
+        # log each time. Never restart this - it needs a person.
+        if awaiting_fml_query(log):
+            return False, ("BLOCKED: FML is waiting for a yes/no answer about the "
+                           "world registry. Do NOT restart - inspect what it wants "
+                           "to drop, then: touch fml-confirm-once.flag && "
+                           "systemctl restart minecraft")
         return False, "startup never completed - no 'Done (' in latest.log"
 
     for pat, why in [(r"Exception reading \./world/level\.dat", "level.dat unreadable"),
@@ -131,8 +148,11 @@ def main():
     print(("OK   " if ok else "FAIL ") + reason)
 
     if not ok and may_restart:
-        audit("restarting minecraft")
-        subprocess.run(["sudo", "-n", "systemctl", "restart", "minecraft"])
+        if reason.startswith("BLOCKED:"):
+            audit("NOT restarting - server is waiting for a human to answer FML")
+        else:
+            audit("restarting minecraft")
+            subprocess.run(["sudo", "-n", "systemctl", "restart", "minecraft"])
     sys.exit(0 if ok else 1)
 
 

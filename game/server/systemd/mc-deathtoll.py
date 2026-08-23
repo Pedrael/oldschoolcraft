@@ -206,6 +206,23 @@ def grave_present(x, y, z):
     return "Successfully found the block" in out
 
 
+
+def clear_grave(x, y, z):
+    """Remove a grave WITHOUT it spilling its contents.
+
+    Breaking an OpenBlocks grave fires GraveDropsEvent and spawns an EntityItem
+    for everything inside - a plain setblock to air scattered 33 stacks across
+    the ground and duplicated a player's entire inventory. Overwriting the tile
+    entity with an EMPTY grave first leaves nothing to drop, and the second
+    setblock then removes a grave that has nothing in it.
+
+    Verified by experiment: spill of 395 items before, zero after.
+    """
+    console(f'setblock {x} {y} {z} OpenBlocks:grave 0 replace {{Items:[],PlayerName:""}}', 1.0)
+    console(f"setblock {x} {y} {z} minecraft:air 0 replace", 0.8)
+    return not grave_present(x, y, z)
+
+
 def inventory_size(uuid):
     """Stack count from playerdata on disk. Callers must force a save first."""
     p = f"{ROOT}/world/playerdata/{uuid}.dat"
@@ -247,6 +264,32 @@ def uuid_of(name):
 
 
 
+
+PENDING = "/home/duduserver/mctools/deathtoll-pending.json"
+
+
+def remember_pending(player, fid, price):
+    """Note that this player is owed a snapshot, in case they log off dead."""
+    try:
+        d = json.load(open(PENDING))
+    except Exception:
+        d = {}
+    d[player] = {"fid": fid, "price": price, "when": time.time()}
+    try:
+        json.dump(d, open(PENDING, "w"), indent=1)
+    except OSError:
+        pass
+
+
+def clear_pending(player):
+    try:
+        d = json.load(open(PENDING))
+    except Exception:
+        return
+    if d.pop(player, None) is not None:
+        json.dump(d, open(PENDING, "w"), indent=1)
+
+
 ARMED_FLAG = "/home/duduserver/mctools/deathtoll.armed"
 
 # Outcomes that mean somebody could be out of pocket. Anything here disarms the
@@ -256,7 +299,7 @@ TRIPPING = {"restore-failed", "grave-stuck", "charge-failed", "no-location", "ex
 # Outcomes that are simply the old behaviour: the player keeps their grave.
 # Nothing is lost, so there is nothing to trip.
 HARMLESS = {"unpaid", "no-respawn", "no-grave", "no-snapshot", "dry", "paid",
-            "already-looted"}
+            "already-looted", "pending"}
 
 
 def trip(reason, player=""):
@@ -318,39 +361,44 @@ def settle(player, snapshot_id, dry=False):
         audit(f"{player}: snapshot has no GraveLocation - leaving alone")
         return "no-location"
 
-    # Wait for a respawn we can actually believe in. MIN_WAIT is a floor:
-    # nobody clicks the respawn button in under three seconds, and restoring
-    # into the death screen is precisely how this went wrong the first time.
-    MIN_WAIT = 3
-    died_at = time.time()
-    time.sleep(MIN_WAIT)
-    for _ in range(60):
-        if uuid and respawned(uuid, died_at):
-            break
-        time.sleep(2)
-    else:
-        audit(f"{player}: no confirmed respawn - leaving the grave alone")
-        say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
-             {"text": "Could not confirm your respawn, so nothing was charged. "
-                      "Your grave is where you fell.", "color": "yellow"}])
-        return "no-respawn"
-
     x, y, z = xyz
 
-    # Did he already loot it while we waited? If so he has his things and owes
-    # nothing - restoring on top would duplicate the lot.
+    # He can pay, so the grave dies NOW - before he has respawned and before
+    # anybody else can walk over and empty it. From here the snapshot is the
+    # only copy and it is authoritative.
     if not grave_present(x, y, z):
-        audit(f"{player}: grave at {x},{y},{z} already gone (looted) - no charge")
+        audit(f"{player}: grave at {x},{y},{z} already gone - no charge")
         return "already-looted"
 
-    # Clear it BEFORE restoring, so there is nothing left to walk back to.
-    console(f"setblock {x} {y} {z} minecraft:air 0 replace", 0.8)
-    if grave_present(x, y, z):
+    if not clear_grave(x, y, z):
         audit(f"{player}: grave at {x},{y},{z} would not clear - nothing charged")
         say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
              {"text": "Could not clear your grave, so nothing was charged. "
                       "It is still where you fell.", "color": "yellow"}])
         return "grave-stuck"
+    audit(f"{player}: grave cleared at {x},{y},{z} - snapshot is now the only copy")
+
+    say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
+         {"text": "INSURED", "color": "gold", "bold": True},
+         {"text": " \u00b7 ", "color": "dark_gray"},
+         {"text": "Your things are held safe. Respawn to collect them.",
+          "color": "white"}])
+
+    # Record it before waiting. If he closes the game instead of respawning,
+    # mc-watcher hands it back on his next join rather than losing it.
+    remember_pending(player, snapshot_id, price)
+
+    # Now wait for a respawn we can believe in.
+    MIN_WAIT = 3
+    died_at = time.time()
+    time.sleep(MIN_WAIT)
+    for _ in range(90):
+        if uuid and respawned(uuid, died_at):
+            break
+        time.sleep(2)
+    else:
+        audit(f"{player}: no respawn yet - snapshot {snapshot_id} left pending")
+        return "pending"
 
     ok, short = charge_snapshot(snapshot_id, nm, root, price)
     if not ok:
@@ -374,6 +422,7 @@ def settle(player, snapshot_id, dry=False):
         say(player, ["", {"text": f"  /ob_inventory spawn {snapshot_id}", "color": "yellow"}])
         return "restore-failed"
     audit(f"{player}: restore landed - {got} stacks")
+    clear_pending(player)
 
     say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
          {"text": "INSURED", "color": "gold", "bold": True},

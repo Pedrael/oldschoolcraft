@@ -200,7 +200,30 @@ def on_death(player, message):
         audit(f"deathtoll failed to launch: {e}")
 
 
+def settle_pending(player):
+    """Hand back a snapshot to someone who logged off before respawning.
+
+    Their grave was already removed - they could pay - so the snapshot is the
+    only copy. Losing it because they closed the game would be unforgivable.
+    """
+    PEND = "/home/duduserver/mctools/deathtoll-pending.json"
+    try:
+        d = json.load(open(PEND))
+    except Exception:
+        return
+    owed = d.get(player)
+    if not owed:
+        return
+    import subprocess
+    subprocess.Popen(["/usr/bin/python3", "/home/duduserver/mctools/mc-deathtoll.py",
+                      player, owed["fid"]],
+                     stdout=open("/home/duduserver/mctools/deathtoll.out", "a"),
+                     stderr=subprocess.STDOUT)
+    audit(f"pending settle launched for {player} -> {owed['fid']}")
+
+
 def on_join(player, state):
+    settle_pending(player)
     f = facts()
     bits = []
     if "day" in f:

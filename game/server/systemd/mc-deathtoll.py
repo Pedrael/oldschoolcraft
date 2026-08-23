@@ -24,7 +24,7 @@ player. If the grave block also survives, the items exist twice. So the grave
 is located and removed FIRST, and the restore only happens once that is
 confirmed - a normal grave is a far better failure mode than duplication.
 """
-import glob, gzip, json, os, re, subprocess, sys, time
+import glob, gzip, json, os, re, shutil, subprocess, sys, time
 
 sys.path.insert(0, "/home/duduserver/mctools")
 import nbtio
@@ -117,37 +117,62 @@ def audit(msg):
         f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')}  {msg}\n")
 
 
-def recent_graves(player, within_s=600):
-    """Graves for this player in regions touched recently. A full sweep of 167
-    region files takes minutes; only freshly written ones can hold a new grave."""
-    out = []
-    now = time.time()
-    for f in glob.glob(f"{ROOT}/world/region/*.mca"):
-        try:
-            if now - os.path.getmtime(f) > within_s:
-                continue
-            R = nbtio.read_region(f)
-        except Exception:
-            continue
-        for i, (ts, nm, c) in R.items():
-            te = c.get("Level", (0, {}))[1].get("TileEntities")
-            if not te:
-                continue
-            for t in te[1][1]:
-                if not isinstance(t, dict):
-                    continue
-                if t.get("id", (0, ""))[1] != "openblocks_grave":
-                    continue
-                if t.get("perishedUsername", (8, ""))[1] != player:
-                    continue
-                out.append({
-                    "x": t.get("x", (3, 0))[1],
-                    "y": t.get("y", (3, 0))[1],
-                    "z": t.get("z", (3, 0))[1],
-                    "items": [s for s in (t.get("Items", (9, (10, [])))[1][1])
-                              if isinstance(s, dict)],
-                })
-    return out
+def snapshot_path(fid):
+    return f"{ROOT}/world/data/inventory-{fid}.dat"
+
+
+def read_snapshot(fid):
+    """(root_compound, items_list, grave_xyz). Items carry STRING ids here."""
+    import gzip
+    p = snapshot_path(fid)
+    raw = open(p, "rb").read()
+    try:
+        data = gzip.decompress(raw)
+    except Exception:
+        data = raw
+    nm, root = nbtio.parse(data)
+    inv = root.get("Inventory")
+    items = inv[1]["Items"][1][1] if inv else []
+    gl = root.get("GraveLocation")
+    xyz = None
+    if gl:
+        g = gl[1]
+        xyz = (g["X"][1], g["Y"][1], g["Z"][1])
+    return nm, root, items, xyz
+
+
+def charge_snapshot(fid, nm, root, price):
+    """Remove exactly `price` coins from the snapshot, then write it back.
+
+    This IS the payment. /clear cannot do it - 1.7.10 has no count argument and
+    would take every coin the player owns.
+    """
+    import gzip
+    items = root["Inventory"][1]["Items"][1][1]
+    left = price
+    keep = []
+    for st in items:
+        if left <= 0 or not isinstance(st, dict):
+            keep.append(st); continue
+        name, dmg, cnt = stack_id(st)
+        is_coin = (name == COIN[0] and dmg == COIN[1]) or name == COIN_ALT[0]
+        if not is_coin:
+            keep.append(st); continue
+        take = min(cnt, left)
+        left -= take
+        if cnt - take > 0:
+            st["Count"] = (1, cnt - take)
+            keep.append(st)
+        # a stack reduced to zero is simply dropped
+    if left > 0:
+        return False, left           # should never happen; caller re-checks
+    root["Inventory"][1]["Items"] = (9, (10, keep))
+    p = snapshot_path(fid)
+    shutil.copy2(p, p + ".pre-toll")
+    with open(p, "wb") as f:
+        f.write(gzip.compress(nbtio.serialise(nm, root)))
+    read_snapshot(fid)               # prove it reads back before we rely on it
+    return True, 0
 
 
 def block_is_gone(x, y, z):
@@ -186,34 +211,38 @@ def uuid_of(name):
 # ---------------------------------------------------------------- flow --
 def settle(player, snapshot_id, dry=False):
     uuid = uuid_of(player)
-    graves = recent_graves(player)
-    if not graves:
-        audit(f"{player}: no recent grave found - leaving alone")
-        return "no-grave"
-    g = graves[-1]
-    pts, coins, counts = appraise(g["items"])
+    try:
+        nm, root, items, xyz = read_snapshot(snapshot_id)
+    except Exception as e:
+        audit(f"{player}: snapshot {snapshot_id} unreadable ({e}) - leaving alone")
+        return "no-snapshot"
+
+    pts, coins, counts = appraise(items)
     price = price_for(pts)
     audit(f"{player}: value={pts:.0f} price={price} coins={coins} "
-          f"S{counts['S']} A{counts['A']} B{counts['B']} C{counts['C']} "
-          f"grave at {g['x']},{g['y']},{g['z']}")
+          f"S{counts['S']} A{counts['A']} B{counts['B']} C{counts['C']} grave={xyz}")
 
     if dry:
-        print(f"  {player}: cargo {pts:.0f} pts -> price {price} coins; "
-              f"had {coins}; would {'PAY' if coins >= price else 'take the grave'}")
+        print(f"  {player}: cargo {pts:.0f} pts -> {price} coins; had {coins}; "
+              f"would {'PAY' if coins >= price else 'take the grave'}; grave {xyz}")
         return "dry"
 
     if coins < price:
         say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
              {"text": "GRAVE", "color": "gray", "bold": True},
              {"text": " \u00b7 ", "color": "dark_gray"},
-             {"text": f"Insuring that load would have cost ", "color": "white"},
+             {"text": "Insuring that load would have cost ", "color": "white"},
              {"text": f"{price} gold coins", "color": "gold"},
              {"text": f". You had {coins}.", "color": "white"}])
         say(player, ["", {"text": "   Your grave is where you fell. Carry coins and it comes home with you.",
                           "color": "gray", "italic": True}])
         return "unpaid"
 
-    # wait for the respawn - restoring into a corpse loses everything
+    if not xyz:
+        audit(f"{player}: snapshot has no GraveLocation - leaving alone")
+        return "no-location"
+
+    # wait for the respawn: restoring into a corpse loses everything
     for _ in range(60):
         if uuid and player_alive(uuid):
             break
@@ -222,18 +251,31 @@ def settle(player, snapshot_id, dry=False):
         audit(f"{player}: never respawned in time - leaving the grave")
         return "timeout"
 
-    # remove the grave FIRST. If this fails we must not restore, or the
-    # items exist twice.
-    console(f"setblock {g['x']} {g['y']} {g['z']} minecraft:air 0 replace", 0.8)
-    if not block_is_gone(g["x"], g["y"], g["z"]):
-        audit(f"{player}: grave at {g['x']},{g['y']},{g['z']} would not clear - ABORTED")
-        say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
-             {"text": "Could not clear your grave, so nothing was charged. "
-                      "It is still where you fell.", "color": "yellow"}])
-        return "grave-stuck"
+    # take the fee out of the snapshot BEFORE restoring it
+    ok, short = charge_snapshot(snapshot_id, nm, root, price)
+    if not ok:
+        audit(f"{player}: could not take {price} from the snapshot (short {short})")
+        return "charge-failed"
 
-    console(f"ob_inventory restore {player} {snapshot_id}", 1.0)
-    console(f"clear {player} {COIN[0]} {COIN[1]} {price}", 0.6)
+    # ORDER MATTERS, and it is the opposite of what it first looks like.
+    # Clearing the grave before restoring risks TOTAL LOSS if the restore
+    # fails. Restoring first risks a DUPLICATE if the grave will not clear.
+    # A duplicate is annoying and fixable; a lost inventory is not. So the
+    # items go back first, and a stuck grave becomes a loud warning.
+    console(f"ob_inventory restore {player} {snapshot_id}", 1.2)
+
+    x, y, z = xyz
+    console(f"setblock {x} {y} {z} minecraft:air 0 replace", 0.8)
+    if not block_is_gone(x, y, z):
+        audit(f"{player}: RESTORED but grave at {x},{y},{z} would NOT clear - "
+              f"possible duplicate, needs manual cleanup")
+        say(player, ["", {"text": "» ", "color": "dark_gray"},
+             {"text": "WARNING", "color": "red", "bold": True},
+             {"text": " · ", "color": "dark_gray"},
+             {"text": "Your items came back, but the grave would not clear.",
+              "color": "white"}])
+        say(player, ["", {"text": f"   Do NOT loot it - looting would duplicate. It is at {x} {y} {z}.",
+                          "color": "yellow"}])
 
     say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
          {"text": "INSURED", "color": "gold", "bold": True},
@@ -242,7 +284,7 @@ def settle(player, snapshot_id, dry=False):
     say(player, ["", {"text": f"   {price} gold coins", "color": "gold"},
          {"text": f" spent \u00b7 {coins - price} left \u00b7 load valued at {pts:.0f}",
           "color": "gray", "italic": True}])
-    audit(f"{player}: PAID {price}, restored {snapshot_id}, grave cleared")
+    audit(f"{player}: PAID {price}, restored {snapshot_id}, grave cleared at {x},{y},{z}")
     return "paid"
 
 

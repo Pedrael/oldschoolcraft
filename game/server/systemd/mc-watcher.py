@@ -152,7 +152,24 @@ def player_dim(player):
 
 # ----------------------------------------------------------------- events --
 def on_death(player, message):
-    """Find the grave snapshot and hand the player its recovery command."""
+    """Settle the death toll, then hand over a grave snapshot if there is one.
+
+    The toll MUST be launched first and unconditionally. With keepInventory on
+    there is no grave and therefore no snapshot file, and this function used to
+    return early when it could not find one - which meant the mechanic was
+    never called at all.
+    """
+    audit(f"death: {player}")
+    try:
+        import subprocess as _sp
+        armed = os.path.exists("/home/duduserver/mctools/deathtoll.armed")
+        _sp.Popen(["/usr/bin/python3", "/home/duduserver/mctools/mc-deathtoll2.py",
+                   player] + ([] if armed else ["--dry-run"]),
+                  stdout=open("/home/duduserver/mctools/deathtoll.out", "a"),
+                  stderr=_sp.STDOUT)
+    except Exception as e:
+        audit(f"deathtoll failed to launch: {e}")
+
     time.sleep(3)                       # let OpenBlocks finish writing the file
     pat = f"{ROOT}/world/data/inventory-{player}-*-grave-0.dat"
     files = sorted(glob.glob(pat), key=os.path.getmtime)
@@ -185,19 +202,6 @@ def on_death(player, message):
              "color": "gray", "italic": True}]))
     audit(f"death: {player} -> {fid} ({kind})")
 
-    # Death insurance. Runs in OBSERVE mode until the armed flag exists, so it
-    # logs what it would have charged without touching anybody's items:
-    #     touch ~/mctools/deathtoll.armed     to enable
-    #     rm    ~/mctools/deathtoll.armed     to disable instantly
-    try:
-        import subprocess as _sp
-        armed = os.path.exists("/home/duduserver/mctools/deathtoll.armed")
-        cmd = ["/usr/bin/python3", "/home/duduserver/mctools/mc-deathtoll.py",
-               player, fid] + ([] if armed else ["--dry-run"])
-        _sp.Popen(cmd, stdout=open("/home/duduserver/mctools/deathtoll.out", "a"),
-                  stderr=_sp.STDOUT)
-    except Exception as e:
-        audit(f"deathtoll failed to launch: {e}")
 
 
 def settle_pending(player):

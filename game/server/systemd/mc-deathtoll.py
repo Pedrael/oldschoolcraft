@@ -188,6 +188,24 @@ def block_is_gone(x, y, z):
     return "Successfully found the block" in out
 
 
+
+def grave_present(x, y, z):
+    """True if a grave block is still standing at these coordinates.
+
+    Used to detect a player who looted their own grave during the respawn
+    wait - restoring on top of that is how 504 items became 998.
+    """
+    before = os.path.getsize(LOG)
+    console(f"testforblock {x} {y} {z} OpenBlocks:grave", 1.2)
+    try:
+        f = open(LOG, "r", encoding="utf-8", errors="replace")
+        f.seek(before)
+        out = f.read()
+    except OSError:
+        return False
+    return "Successfully found the block" in out
+
+
 def inventory_size(uuid):
     """Stack count from playerdata on disk. Callers must force a save first."""
     p = f"{ROOT}/world/playerdata/{uuid}.dat"
@@ -237,7 +255,8 @@ TRIPPING = {"restore-failed", "grave-stuck", "charge-failed", "no-location", "ex
 
 # Outcomes that are simply the old behaviour: the player keeps their grave.
 # Nothing is lost, so there is nothing to trip.
-HARMLESS = {"unpaid", "no-respawn", "no-grave", "no-snapshot", "dry", "paid"}
+HARMLESS = {"unpaid", "no-respawn", "no-grave", "no-snapshot", "dry", "paid",
+            "already-looted"}
 
 
 def trip(reason, player=""):
@@ -316,47 +335,45 @@ def settle(player, snapshot_id, dry=False):
                       "Your grave is where you fell.", "color": "yellow"}])
         return "no-respawn"
 
-    # take the fee out of the snapshot BEFORE restoring it
+    x, y, z = xyz
+
+    # Did he already loot it while we waited? If so he has his things and owes
+    # nothing - restoring on top would duplicate the lot.
+    if not grave_present(x, y, z):
+        audit(f"{player}: grave at {x},{y},{z} already gone (looted) - no charge")
+        return "already-looted"
+
+    # Clear it BEFORE restoring, so there is nothing left to walk back to.
+    console(f"setblock {x} {y} {z} minecraft:air 0 replace", 0.8)
+    if grave_present(x, y, z):
+        audit(f"{player}: grave at {x},{y},{z} would not clear - nothing charged")
+        say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
+             {"text": "Could not clear your grave, so nothing was charged. "
+                      "It is still where you fell.", "color": "yellow"}])
+        return "grave-stuck"
+
     ok, short = charge_snapshot(snapshot_id, nm, root, price)
     if not ok:
         audit(f"{player}: could not take {price} from the snapshot (short {short})")
         return "charge-failed"
 
-    # ORDER MATTERS, and it is the opposite of what it first looks like.
-    # Clearing the grave before restoring risks TOTAL LOSS if the restore
-    # fails. Restoring first risks a DUPLICATE if the grave will not clear.
-    # A duplicate is annoying and fixable; a lost inventory is not. So the
-    # items go back first, and a stuck grave becomes a loud warning.
     console(f"ob_inventory restore {player} {snapshot_id}", 1.5)
 
-    # "Restored inventory for player X" is logged even when the items go
-    # nowhere, so the server's own success message proves nothing. Read the
-    # inventory back instead.
+    # The server logs success even when the items go nowhere, so read it back.
     console("save-all", 2.0)
     got = inventory_size(uuid)
     if not got:
-        audit(f"{player}: restore reported success but inventory is still empty "
-              f"- REFUNDING and leaving the grave")
+        audit(f"{player}: restore did NOT land - refunding, snapshot kept as {snapshot_id}")
         shutil.copy2(snapshot_path(snapshot_id) + ".pre-toll",
                      snapshot_path(snapshot_id))
         say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
-             {"text": "The restore did not take, so you were not charged. "
-                      "Your grave is still where you fell.", "color": "yellow"}])
+             {"text": "RESTORE FAILED", "color": "red", "bold": True},
+             {"text": " \u00b7 ", "color": "dark_gray"},
+             {"text": "You were not charged. Your items are safe - run this:",
+              "color": "white"}])
+        say(player, ["", {"text": f"  /ob_inventory spawn {snapshot_id}", "color": "yellow"}])
         return "restore-failed"
     audit(f"{player}: restore landed - {got} stacks")
-
-    x, y, z = xyz
-    console(f"setblock {x} {y} {z} minecraft:air 0 replace", 0.8)
-    if not block_is_gone(x, y, z):
-        audit(f"{player}: RESTORED but grave at {x},{y},{z} would NOT clear - "
-              f"possible duplicate, needs manual cleanup")
-        say(player, ["", {"text": "» ", "color": "dark_gray"},
-             {"text": "WARNING", "color": "red", "bold": True},
-             {"text": " · ", "color": "dark_gray"},
-             {"text": "Your items came back, but the grave would not clear.",
-              "color": "white"}])
-        say(player, ["", {"text": f"   Do NOT loot it - looting would duplicate. It is at {x} {y} {z}.",
-                          "color": "yellow"}])
 
     say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
          {"text": "INSURED", "color": "gold", "bold": True},

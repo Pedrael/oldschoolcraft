@@ -228,6 +228,43 @@ def uuid_of(name):
     return None
 
 
+
+ARMED_FLAG = "/home/duduserver/mctools/deathtoll.armed"
+
+# Outcomes that mean somebody could be out of pocket. Anything here disarms the
+# mechanic immediately rather than waiting for a human to notice.
+TRIPPING = {"restore-failed", "grave-stuck", "charge-failed", "no-location", "exception"}
+
+# Outcomes that are simply the old behaviour: the player keeps their grave.
+# Nothing is lost, so there is nothing to trip.
+HARMLESS = {"unpaid", "no-respawn", "no-grave", "no-snapshot", "dry", "paid"}
+
+
+def trip(reason, player=""):
+    """Disarm, loudly. Costs one restart of nothing and saves an inventory."""
+    was_armed = os.path.exists(ARMED_FLAG)
+    try:
+        os.remove(ARMED_FLAG)
+    except OSError:
+        pass
+    audit(f"BREAKER TRIPPED ({reason}) for {player} - mechanic DISARMED")
+    if not was_armed:
+        return
+    try:
+        console("tellraw @a " + json.dumps(["",
+            {"text": "\u00bb ", "color": "dark_gray"},
+            {"text": "INSURANCE OFF", "color": "red", "bold": True},
+            {"text": " \u00b7 ", "color": "dark_gray"},
+            {"text": "Death insurance just failed and has shut itself down.",
+             "color": "white"}], ensure_ascii=False), 0.3)
+        console("tellraw @a " + json.dumps(["",
+            {"text": "   Deaths now leave a normal grave. Nobody will be charged "
+                     "until this is looked at.", "color": "gray", "italic": True}],
+            ensure_ascii=False), 0.3)
+    except Exception:
+        pass
+
+
 # ---------------------------------------------------------------- flow --
 def settle(player, snapshot_id, dry=False):
     uuid = uuid_of(player)
@@ -363,6 +400,20 @@ if __name__ == "__main__":
         for who in ("DuduPhudu", "VerrassVerrass", "CubeThePenguin"):
             quote(who)
     elif len(sys.argv) >= 3:
-        print(settle(sys.argv[1], sys.argv[2], dry="--dry-run" in sys.argv))
+        player, fid = sys.argv[1], sys.argv[2]
+        dry = "--dry-run" in sys.argv
+        try:
+            outcome = settle(player, fid, dry=dry)
+        except Exception as e:
+            import traceback
+            audit(f"{player}: UNHANDLED {type(e).__name__}: {e}")
+            audit(traceback.format_exc())
+            if not dry:
+                trip("exception", player)
+            print("exception")
+            sys.exit(1)
+        if not dry and outcome in TRIPPING:
+            trip(outcome, player)
+        print(outcome)
     else:
         print(__doc__)

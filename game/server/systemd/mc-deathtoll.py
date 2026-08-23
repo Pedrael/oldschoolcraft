@@ -188,9 +188,29 @@ def block_is_gone(x, y, z):
     return "Successfully found the block" in out
 
 
-def player_alive(uuid):
+def inventory_size(uuid):
+    """Stack count from playerdata on disk. Callers must force a save first."""
     p = f"{ROOT}/world/playerdata/{uuid}.dat"
     try:
+        nm, root = nbtio.parse(gzip.decompress(open(p, "rb").read()))
+    except Exception:
+        return None
+    inv = root.get("Inventory")
+    return len([x for x in inv[1][1] if isinstance(x, dict)]) if inv else 0
+
+
+def respawned(uuid, since):
+    """Alive AND the file is newer than the death.
+
+    Health alone is a trap: Minecraft does not write playerdata on death, so a
+    stale file reports the player hale and hearty for as long as it likes. Only
+    a file written AFTER the death can answer this.
+    """
+    p = f"{ROOT}/world/playerdata/{uuid}.dat"
+    console("save-all", 1.5)
+    try:
+        if os.path.getmtime(p) <= since:
+            return False
         nm, root = nbtio.parse(gzip.decompress(open(p, "rb").read()))
     except Exception:
         return False
@@ -242,14 +262,22 @@ def settle(player, snapshot_id, dry=False):
         audit(f"{player}: snapshot has no GraveLocation - leaving alone")
         return "no-location"
 
-    # wait for the respawn: restoring into a corpse loses everything
+    # Wait for a respawn we can actually believe in. MIN_WAIT is a floor:
+    # nobody clicks the respawn button in under three seconds, and restoring
+    # into the death screen is precisely how this went wrong the first time.
+    MIN_WAIT = 3
+    died_at = time.time()
+    time.sleep(MIN_WAIT)
     for _ in range(60):
-        if uuid and player_alive(uuid):
+        if uuid and respawned(uuid, died_at):
             break
         time.sleep(2)
     else:
-        audit(f"{player}: never respawned in time - leaving the grave")
-        return "timeout"
+        audit(f"{player}: no confirmed respawn - leaving the grave alone")
+        say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
+             {"text": "Could not confirm your respawn, so nothing was charged. "
+                      "Your grave is where you fell.", "color": "yellow"}])
+        return "no-respawn"
 
     # take the fee out of the snapshot BEFORE restoring it
     ok, short = charge_snapshot(snapshot_id, nm, root, price)
@@ -262,7 +290,23 @@ def settle(player, snapshot_id, dry=False):
     # fails. Restoring first risks a DUPLICATE if the grave will not clear.
     # A duplicate is annoying and fixable; a lost inventory is not. So the
     # items go back first, and a stuck grave becomes a loud warning.
-    console(f"ob_inventory restore {player} {snapshot_id}", 1.2)
+    console(f"ob_inventory restore {player} {snapshot_id}", 1.5)
+
+    # "Restored inventory for player X" is logged even when the items go
+    # nowhere, so the server's own success message proves nothing. Read the
+    # inventory back instead.
+    console("save-all", 2.0)
+    got = inventory_size(uuid)
+    if not got:
+        audit(f"{player}: restore reported success but inventory is still empty "
+              f"- REFUNDING and leaving the grave")
+        shutil.copy2(snapshot_path(snapshot_id) + ".pre-toll",
+                     snapshot_path(snapshot_id))
+        say(player, ["", {"text": "\u00bb ", "color": "dark_gray"},
+             {"text": "The restore did not take, so you were not charged. "
+                      "Your grave is still where you fell.", "color": "yellow"}])
+        return "restore-failed"
+    audit(f"{player}: restore landed - {got} stacks")
 
     x, y, z = xyz
     console(f"setblock {x} {y} {z} minecraft:air 0 replace", 0.8)

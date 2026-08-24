@@ -32,9 +32,29 @@ DIM_NAMES = {
     -2: "the Cave Dimension", -17: "the Wyvern Lair", 0: "the Overworld",
 }
 
-DEATH_VERB = re.compile(
-    r"^(\S+) (was |fell |drowned|went up|hit the ground|starved|suffocated|"
-    r"tried to swim|died|blew up|walked into|burned|withered|got )")
+# Matching a whitelist of verbs was wrong. EnviroMine alone adds nine death
+# messages and three never matched: "froze to death", "bled out", and the
+# possessive "<name>'s brain was cooked by heatstroke" - which is how a real
+# death slipped past the insurance entirely on 2026-08-24.
+#
+# So: recognise the PLAYER, and exclude the lines we know are not deaths.
+# A new mod's death message is then caught by default rather than missed.
+NOT_DEATH = re.compile(
+    r"(joined the game|left the game|lost connection|has just earned the achievement|"
+    r"currently online|Players currently|issued server command|moved too quickly|"
+    r"moved wrongly|tried to swim in lava to escape)", re.I)
+
+
+def death_player(body):
+    """Return the player who just died, if this line is a death."""
+    if NOT_DEATH.search(body):
+        return None
+    for p in PLAYERS:
+        if body.startswith(p + " ") or body.startswith(p + "'s "):
+            return p
+    return None
+
+
 LINE = re.compile(r"^\[(\d\d:\d\d:\d\d)\] \[Server thread/INFO\]: (.+)$")
 
 
@@ -327,8 +347,10 @@ def main():
                     elif lm2 and lm2.group(1) in PLAYERS:
                         online.discard(lm2.group(1))
                         write_online(online)
-                    elif DEATH_VERB.match(body) and body.split(" ", 1)[0] in PLAYERS:
-                        on_death(body.split(" ", 1)[0], body)
+                    else:
+                        who = death_player(body)
+                        if who:
+                            on_death(who, body)
             else:
                 # nothing new: check rotation, then dimensions
                 try:

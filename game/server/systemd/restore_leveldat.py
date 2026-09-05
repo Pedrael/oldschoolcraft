@@ -14,7 +14,13 @@ import gzip, os, shutil, subprocess, sys
 
 WORLD  = "/home/duduserver/minecraft/1.7.10/world"
 LIVE   = os.path.join(WORLD, "level.dat")
-RESCUE = "/home/duduserver/mctools/level.dat_old.RESCUE-20260821"
+# Minecraft rotates level.dat -> level.dat_old on every successful save, so the
+# world's OWN level.dat_old is the correct fallback and is always current. A
+# hardcoded rescue copy goes stale: the 2026-08-21 one is day 92 while the world
+# reached day 368, and restoring it would have silently thrown away two weeks.
+# An explicit path may still be passed as argv[1] if level.dat_old is also bad.
+RESCUE = (sys.argv[1] if len(sys.argv) > 1 and not sys.argv[1].startswith("-")
+          else os.path.join(WORLD, "level.dat_old"))
 
 
 def valid(path):

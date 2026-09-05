@@ -85,6 +85,44 @@ def console_replies(timeout=6.0):
 
 
 
+
+def leveldat_broken(log):
+    """Is the boot stuck because world/level.dat cannot be read?
+
+    Distinct from a plain hang: this one has a known, scripted repair, so it
+    can be fixed rather than merely restarted. Restarting alone just meets the
+    same corrupt file again - which is exactly what happened on 2026-09-05.
+    """
+    return ("Exception reading ./world/level.dat" in log
+            and "Done (" not in log)
+
+
+def repair_leveldat():
+    """Stop, restore level.dat from the world's own level.dat_old, start."""
+    audit("level.dat unreadable - attempting the scripted repair")
+    subprocess.run(["sudo", "-n", "systemctl", "stop", "minecraft"],
+                   timeout=120, capture_output=True)
+    time.sleep(5)
+    # a boot that never loaded the world has nothing worth saving
+    pid = subprocess.run(["systemctl", "show", "minecraft", "-p", "MainPID", "--value"],
+                         capture_output=True, text=True).stdout.strip()
+    if pid and pid != "0":
+        subprocess.run(["sudo", "-n", "kill", "-9", pid], capture_output=True)
+        time.sleep(3)
+    r = subprocess.run(["/usr/bin/python3", "/home/duduserver/mctools/restore_leveldat.py"],
+                       capture_output=True, text=True, timeout=180)
+    audit("restore_leveldat: " + " | ".join(
+        l.strip() for l in r.stdout.splitlines() if l.strip())[:300])
+    if r.returncode != 0:
+        audit("repair FAILED - leaving the server down for a human")
+        return False
+    subprocess.run(["sudo", "-n", "systemctl", "reset-failed", "minecraft"],
+                   capture_output=True)
+    subprocess.run(["sudo", "-n", "systemctl", "start", "minecraft"], capture_output=True)
+    audit("repair applied, server restarted")
+    return True
+
+
 def awaiting_fml_query(log):
     """Is the boot stalled on an FML confirmation prompt rather than deadlocked?"""
     return any(m in log for m in (
@@ -113,6 +151,9 @@ def check():
         # A boot blocked on an FML startup question looks exactly like a hung
         # boot, but restarting re-asks the same question forever and wipes the
         # log each time. Never restart this - it needs a person.
+        if leveldat_broken(log):
+            return False, ("BROKEN: world/level.dat is unreadable - an unclean "
+                           "shutdown truncated it. Repairable from level.dat_old")
         if awaiting_fml_query(log):
             return False, ("BLOCKED: FML is waiting for a yes/no answer about the "
                            "world registry. Do NOT restart - inspect what it wants "
@@ -148,7 +189,9 @@ def main():
     print(("OK   " if ok else "FAIL ") + reason)
 
     if not ok and may_restart:
-        if reason.startswith("BLOCKED:"):
+        if reason.startswith("BROKEN:"):
+            repair_leveldat()
+        elif reason.startswith("BLOCKED:"):
             audit("NOT restarting - server is waiting for a human to answer FML")
         else:
             audit("restarting minecraft")
